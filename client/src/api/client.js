@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api' });
+// 🔥 THE FIX: Pointing directly to your live Render backend
+const api = axios.create({
+  baseURL: 'https://smart-resume-analyzer-avad.onrender.com/api'
+});
 
 const ADMIN_PATHS = ['/dashboard/admin', '/auth/logout'];
 
