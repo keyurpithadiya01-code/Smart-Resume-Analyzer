@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign up — Scanly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0f14; --ink-2:#10161d; --ink-3:#161d26;
+    --paper:#f0f0ec; --paper-dim:#c9cbc5;
+    --scan:#00ffa3; --scan-dim:#00ffa340;
+    --amber:#ffb454; --slate:#6b7785; --line:#232b35;
+    --red:#ff6b6b;
+    --display:'Space Grotesk',sans-serif; --mono:'IBM Plex Mono',monospace; --body:'Inter',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--ink); color:var(--paper); font-family:var(--body);
+    min-height:100vh; display:flex; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--scan); color:var(--ink);}
+  button{font-family:inherit;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ---------- LEFT VISUAL PANEL ---------- */
+  .visual-panel{
+    flex:1; position:relative; overflow:hidden;
+    background:linear-gradient(160deg, #0d1218 0%, #0b0f14 60%);
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:48px; border-right:1px solid var(--line);
+  }
+  .visual-panel .grid-bg{
+    position:absolute; inset:0;
+    background-image:linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(ellipse 70% 60% at 50% 45%, black 20%, transparent 75%);
+  }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:-0.02em; position:relative; z-index:2;}
+  .logo .dot{ width:9px;height:9px;border-radius:50%; background:var(--scan); box-shadow:0 0 12px var(--scan); animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.55;transform:scale(.78);}}
+
+  .visual-center{ position:relative; z-index:2; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px; }
+
+  /* progress journey on the visual side */
+  .journey{ width:280px; }
+  .journey-step{ display:flex; align-items:flex-start; gap:14px; padding:14px 0; position:relative; }
+  .journey-step:not(:last-child)::after{
+    content:''; position:absolute; left:13px; top:38px; width:1px; height:calc(100% - 14px); background:var(--line);
+  }
+  .journey-step.done:not(:last-child)::after{ background:var(--scan); }
+  .j-dot{
+    width:27px; height:27px; border-radius:50%; border:1.5px solid var(--line); background:var(--ink-2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:var(--mono); font-size:11px; color:var(--slate);
+    transition:all .35s ease; z-index:2;
+  }
+  .journey-step.active .j-dot{ border-color:var(--scan); color:var(--scan); box-shadow:0 0 0 4px var(--scan-dim); }
+  .journey-step.done .j-dot{ background:var(--scan); border-color:var(--scan); color:var(--ink); }
+  .j-text{ padding-top:3px; }
+  .j-title{ font-family:var(--display); font-weight:600; font-size:14.5px; color:var(--paper-dim); transition:color .3s ease; }
+  .journey-step.active .j-title{ color:var(--paper); }
+  .j-sub{ font-family:var(--mono); font-size:11px; color:var(--slate); margin-top:3px; }
+
+  .visual-quote{ position:relative; z-index:2; font-family:var(--mono); font-size:13px; color:var(--slate); line-height:1.7; max-width:380px; }
+  .visual-quote .name{ color:var(--paper); margin-top:10px; display:block; }
+
+  /* ---------- RIGHT FORM PANEL ---------- */
+  .form-panel{ flex:1; display:flex; align-items:center; justify-content:center; padding:48px 24px; max-width:560px; }
+  .form-wrap{ width:100%; max-width:400px; }
+  .form-top-nav{ display:flex; justify-content:space-between; align-items:center; margin-bottom:48px; }
+  .back-link{ font-family:var(--mono); font-size:12.5px; color:var(--slate); display:flex; align-items:center; gap:6px; transition:color .2s ease; cursor:pointer; background:none; border:none; }
+  .back-link:hover{ color:var(--paper); }
+  .mobile-logo{ display:none; font-family:var(--display); font-weight:700; font-size:18px; align-items:center; gap:8px; }
+  .mobile-logo .dot{ width:8px;height:8px;border-radius:50%; background:var(--scan); }
+
+  /* mobile step pills (shown only on small screens) */
+  .mobile-steps{ display:none; gap:6px; margin-bottom:32px; }
+  .mobile-steps .pill{ height:3px; flex:1; background:var(--line); border-radius:2px; transition:background .3s ease; }
+  .mobile-steps .pill.done{ background:var(--scan); }
+
+  .step-eyebrow{ font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--scan); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  .step-eyebrow .stepcount{ color:var(--slate); }
+  h1{ font-family:var(--display); font-weight:700; font-size:30px; letter-spacing:-0.02em; }
+  .form-sub{ color:var(--slate); font-size:14.5px; margin-top:10px; margin-bottom:34px; line-height:1.6; }
+  .form-sub a{ color:var(--scan); font-weight:600; }
+  .form-sub a:hover{ text-decoration:underline; }
+  .form-sub b{ color:var(--paper); font-weight:600; }
+
+  .field{ margin-bottom:20px; }
+  .field label{ display:block; font-family:var(--mono); font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--slate); margin-bottom:9px; }
+  .input-wrap{ position:relative; }
+  .input-wrap svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--slate); pointer-events:none; transition:stroke .2s ease; }
+  input{
+    width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:9px;
+    padding:14px 16px 14px 42px; color:var(--paper); font-family:var(--body); font-size:14.5px;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  input::placeholder{ color:#4a5460; }
+  input:focus{ outline:none; border-color:var(--scan); background:var(--ink-3); }
+  .input-wrap:has(input:focus) svg{ stroke:var(--scan); }
+  .toggle-pass{ position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; display:flex; }
+  .toggle-pass svg{ width:16px; height:16px; stroke:var(--slate); position:static; transform:none; }
+  .toggle-pass:hover svg{ stroke:var(--paper); }
+  .mobile-prefix{
+    position:absolute; left:42px; top:50%; transform:translateY(-50%); font-family:var(--mono); font-size:14px; color:var(--paper-dim); pointer-events:none;
+  }
+  #mobile{ padding-left:78px; }
+
+  .field-error{ font-family:var(--mono); font-size:11.5px; color:var(--red); margin-top:7px; display:none; }
+  .field.invalid input{ border-color:var(--red); }
+  .field.invalid .field-error{ display:block; }
+  .field-hint{ font-family:var(--mono); font-size:11px; color:var(--slate); margin-top:7px; }
+
+  .btn-primary{
+    width:100%; font-family:var(--body); font-weight:700; font-size:15px; color:var(--ink);
+    background:var(--scan); padding:15px; border-radius:9px; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .2s ease, box-shadow .3s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 10px 28px -8px var(--scan); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+  .btn-primary .spinner{ width:16px; height:16px; border:2px solid rgba(11,15,20,0.3); border-top-color:var(--ink); border-radius:50%; animation:spin .7s linear infinite; display:none; }
+  .btn-primary.loading .spinner{ display:inline-block; }
+  .btn-primary.loading .btxt{ display:none; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .divider{ display:flex; align-items:center; gap:14px; margin:26px 0; }
+  .divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+  .divider span{ font-family:var(--mono); font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.06em; }
+
+  .social-row{ display:flex; gap:12px; }
+  .btn-social{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:10px;
+    border:1px solid var(--line); border-radius:9px; padding:12px; background:var(--ink-2);
+    font-size:14px; font-weight:600; color:var(--paper); cursor:pointer; transition:border-color .2s ease, background .2s ease;
+  }
+  .btn-social:hover{ border-color:var(--paper-dim); background:var(--ink-3); }
+  .btn-social svg{ width:18px; height:18px; }
+
+  /* OTP boxes */
+  .otp-row{ display:flex; gap:10px; margin-bottom:8px; }
+  .otp-box{
+    width:100%; aspect-ratio:1; text-align:center; font-family:var(--mono); font-size:22px; font-weight:600;
+    background:var(--ink-2); border:1px solid var(--line); border-radius:9px; color:var(--paper);
+    padding:0; transition:border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  .otp-box:focus{ outline:none; border-color:var(--scan); background:var(--ink-3); transform:scale(1.04); }
+  .otp-box.filled{ border-color:#2c3640; }
+  .otp-box.error{ border-color:var(--red); animation:shake .35s ease; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+
+  .otp-meta{ display:flex; justify-content:space-between; align-items:center; margin:18px 0 28px; }
+  .otp-sent-to{ font-family:var(--mono); font-size:12px; color:var(--slate); }
+  .otp-sent-to b{ color:var(--paper-dim); }
+  .resend-btn{ font-family:var(--mono); font-size:12px; color:var(--scan); font-weight:600; background:none; border:none; cursor:pointer; }
+  .resend-btn:disabled{ color:var(--slate); cursor:default; }
+  .resend-btn:hover:not(:disabled){ text-decoration:underline; }
+
+  .otp-demo-hint{
+    font-family:var(--mono); font-size:11.5px; color:var(--amber); background:rgba(255,180,84,0.08);
+    border:1px solid rgba(255,180,84,0.25); border-radius:8px; padding:10px 14px; margin-bottom:24px;
+  }
+
+  /* password strength */
+  .strength-row{ display:flex; gap:5px; margin-top:10px; }
+  .strength-row .seg{ height:4px; flex:1; border-radius:2px; background:var(--line); transition:background .3s ease; }
+  .strength-label{ font-family:var(--mono); font-size:11px; color:var(--slate); margin-top:8px; }
+  .req-list{ margin-top:14px; display:flex; flex-direction:column; gap:7px; }
+  .req-item{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; color:var(--slate); transition:color .25s ease; }
+  .req-item svg{ width:13px; height:13px; stroke:var(--slate); transition:stroke .25s ease; flex-shrink:0; }
+  .req-item.met{ color:var(--scan); }
+  .req-item.met svg{ stroke:var(--scan); }
+
+  /* success state */
+  .success-wrap{ text-align:center; padding-top:20px; }
+  .success-icon{
+    width:72px; height:72px; border-radius:50%; background:var(--scan-dim); border:1.5px solid var(--scan);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 28px;
+    animation:popIn .5s ease forwards;
+  }
+  @keyframes popIn{ 0%{ transform:scale(.7); opacity:0;} 100%{ transform:scale(1); opacity:1;} }
+  .success-icon svg{ width:30px; height:30px; stroke:var(--scan); }
+
+  .toast{
+    position:fixed; top:24px; right:24px; background:var(--ink-2); border:1px solid var(--scan-dim);
+    border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:13px; color:var(--paper); box-shadow:0 16px 40px -12px rgba(0,0,0,0.6);
+    transform:translateX(120%); transition:transform .35s ease; z-index:200;
+  }
+  .toast.show{ transform:translateX(0); }
+  .toast .dotgreen{ width:8px; height:8px; border-radius:50%; background:var(--scan); flex-shrink:0; box-shadow:0 0 10px var(--scan); }
+
+  /* step transitions */
+  .step{ display:none; animation:stepIn .4s ease; }
+  .step.active{ display:block; }
+  @keyframes stepIn{ from{ opacity:0; transform:translateX(14px);} to{ opacity:1; transform:translateX(0);} }
+
+  @media (max-width:900px){
+    .visual-panel{ display:none; }
+    .form-panel{ max-width:none; flex:1; padding:32px 22px; }
+    .mobile-logo{ display:flex; }
+    .mobile-steps{ display:flex; }
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible{ outline:2px solid var(--scan); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<section class="visual-panel">
+  <div class="grid-bg"></div>
+  <div class="logo"><span class="dot"></span>Scanly</div>
+
+  <div class="visual-center">
+    <div class="journey" id="journey">
+      <div class="journey-step active" data-step="1">
+        <div class="j-dot">1</div>
+        <div class="j-text"><div class="j-title">Your name</div><div class="j-sub">Tell us who you are</div></div>
+      </div>
+      <div class="journey-step" data-step="2">
+        <div class="j-dot">2</div>
+        <div class="j-text"><div class="j-title">Mobile number</div><div class="j-sub">We'll send a verification code</div></div>
+      </div>
+      <div class="journey-step" data-step="3">
+        <div class="j-dot">3</div>
+        <div class="j-text"><div class="j-title">Verify OTP</div><div class="j-sub">Enter the 6-digit code</div></div>
+      </div>
+      <div class="journey-step" data-step="4">
+        <div class="j-dot">4</div>
+        <div class="j-text"><div class="j-title">Set password</div><div class="j-sub">Secure your account</div></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="visual-quote">"Sign-up took less than a minute. Scanned my resume and had three actionable fixes before I'd even finished my coffee."<span class="name">— D. Shah, CS Undergrad</span></p>
+</section>
+
+<section class="form-panel">
+  <div class="form-wrap">
+    <div class="form-top-nav">
+      <button class="back-link" id="backBtn">← Back</button>
+      <div class="mobile-logo"><span class="dot"></span>Scanly</div>
+    </div>
+
+    <div class="mobile-steps" id="mobileSteps">
+      <div class="pill done" data-pill="1"></div>
+      <div class="pill" data-pill="2"></div>
+      <div class="pill" data-pill="3"></div>
+      <div class="pill" data-pill="4"></div>
+    </div>
+
+    <form id="signupForm" novalidate>
+
+      <!-- STEP 1: NAME -->
+      <div class="step active" data-step="1">
+        <div class="step-eyebrow"><span class="stepcount">STEP 1 / 4</span> · GETTING STARTED</div>
+        <h1>What's your name?</h1>
+        <p class="form-sub">Already have an account? <a href="login.html">Log in</a></p>
+
+        <div class="field" id="nameField">
+          <label for="fullname">Full name</label>
+          <div class="input-wrap">
+            <input type="text" id="fullname" placeholder="e.g. Keyur Patel" autocomplete="name">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          </div>
+          <div class="field-error">Please enter your full name</div>
+        </div>
+
+        <button type="button" class="btn-primary" id="toStep2">
+          <span class="btxt">Continue →</span><span class="spinner"></span>
+        </button>
+
+        <div class="divider"><span>or sign up with</span></div>
+        <div class="social-row">
+          <button type="button" class="btn-social" id="googleBtn">
+            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23Z"/><path fill="#FBBC05" d="M5.84 14.1A7.1 7.1 0 0 1 5.46 12c0-.73.13-1.43.38-2.1V7.06H2.18A11.9 11.9 0 0 0 1 12c0 1.93.46 3.76 1.18 5.94l3.66-2.84Z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 1.99 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52Z"/></svg>
+            Google
+          </button>
+          <button type="button" class="btn-social" id="linkedinBtn">
+            <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
+            LinkedIn
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: MOBILE -->
+      <div class="step" data-step="2">
+        <div class="step-eyebrow"><span class="stepcount">STEP 2 / 4</span> · VERIFICATION</div>
+        <h1>What's your number?</h1>
+        <p class="form-sub">Hey <b><span id="greetName">there</span></b> — we'll text a 6-digit code to verify it's really you.</p>
+
+        <div class="field" id="mobileField">
+          <label for="mobile">Mobile number</label>
+          <div class="input-wrap">
+            <input type="tel" id="mobile" placeholder="98765 43210" inputmode="numeric" maxlength="10" autocomplete="tel">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            <span class="mobile-prefix">+91</span>
+          </div>
+          <div class="field-error">Enter a valid 10-digit mobile number</div>
+          <div class="field-hint">We'll never share your number or use it to spam you.</div>
+        </div>
+
+        <button type="button" class="btn-primary" id="toStep3">
+          <span class="btxt">Send OTP →</span><span class="spinner"></span>
+        </button>
+      </div>
+
+      <!-- STEP 3: OTP -->
+      <div class="step" data-step="3">
+        <div class="step-eyebrow"><span class="stepcount">STEP 3 / 4</span> · VERIFICATION</div>
+        <h1>Enter the code</h1>
+        <p class="form-sub">We sent a 6-digit code to <b><span id="otpSentNumber">+91 98765 43210</span></b>.</p>
+
+        <div class="otp-demo-hint">Demo mode — any 6 digits will verify. Try <b>123456</b>.</div>
+
+        <div class="otp-row" id="otpRow">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 1">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 2">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 3">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 4">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 5">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 6">
+        </div>
+        <div class="field-error" id="otpError" style="margin-bottom:8px;">Incorrect code. Please try again.</div>
+
+        <div class="otp-meta">
+          <span class="otp-sent-to" id="resendTimerText">Resend code in <b id="timerSeconds">30s</b></span>
+          <button type="button" class="resend-btn" id="resendBtn" disabled>Resend code</button>
+        </div>
+
+        <button type="button" class="btn-primary" id="toStep4">
+          <span class="btxt">Verify →</span><span class="spinner"></span>
+        </button>
+      </div>
+
+      <!-- STEP 4: PASSWORD -->
+      <div class="step" data-step="4">
+        <div class="step-eyebrow"><span class="stepcount">STEP 4 / 4</span> · ALMOST DONE</div>
+        <h1>Set a password</h1>
+        <p class="form-sub">Last step — secure your Scanly account.</p>
+
+        <div class="field" id="passField">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="password" placeholder="Create a password" autocomplete="new-password">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <button type="button" class="toggle-pass" id="togglePass1" aria-label="Show password">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" class="eyeIcon"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="strength-row"><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div></div>
+          <div class="strength-label" id="strengthLabel">Enter a password</div>
+        </div>
+
+        <div class="field" id="confirmField">
+          <label for="confirmPassword">Confirm password</label>
+          <div class="input-wrap">
+            <input type="password" id="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <button type="button" class="toggle-pass" id="togglePass2" aria-label="Show password">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" class="eyeIcon"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="field-error">Passwords don't match</div>
+        </div>
+
+        <div class="req-list">
+          <div class="req-item" id="req-len"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>At least 8 characters</div>
+          <div class="req-item" id="req-num"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>At least 1 number</div>
+          <div class="req-item" id="req-case"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Upper &amp; lowercase letters</div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="createAccountBtn" style="margin-top:26px;">
+          <span class="btxt">Create account →</span><span class="spinner"></span>
+        </button>
+      </div>
+
+      <!-- STEP 5: SUCCESS -->
+      <div class="step" data-step="5">
+        <div class="success-wrap">
+          <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="step-eyebrow" style="justify-content:center;">ACCOUNT CREATED</div>
+          <h1 style="text-align:center;">You're all set, <span id="successName">there</span></h1>
+          <p class="form-sub" style="text-align:center;">Your account is ready. Log in to run your first resume scan.</p>
+          <a href="login.html" class="btn-primary" style="text-decoration:none;"><span class="btxt">Go to login →</span></a>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<div class="toast" id="toast"><span class="dotgreen"></span><span id="toastMsg">Code sent</span></div>
+
+<script>
+  const stepEls = document.querySelectorAll('.step');
+  const journeySteps = document.querySelectorAll('.journey-step');
+  const mobilePills = document.querySelectorAll('.pill');
+  let currentStep = 1;
+
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  function goToStep(n){
+    stepEls.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === n));
+    journeySteps.forEach(s => {
+      const sn = parseInt(s.dataset.step);
+      s.classList.toggle('done', sn < n);
+      s.classList.toggle('active', sn === n);
+    });
+    mobilePills.forEach(p => {
+      const pn = parseInt(p.dataset.pill);
+      p.classList.toggle('done', pn <= n || n === 5);
+    });
+    currentStep = n;
+    document.getElementById('backBtn').style.visibility = (n === 1 || n === 5) ? 'hidden' : 'visible';
+  }
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (currentStep > 1 && currentStep < 5) goToStep(currentStep - 1);
+  });
+
+  function setLoading(btn, on){
+    btn.classList.toggle('loading', on);
+    btn.disabled = on;
+  }
+
+  // ---- STEP 1: NAME ----
+  const fullnameInput = document.getElementById('fullname');
+  const nameField = document.getElementById('nameField');
+  document.getElementById('toStep2').addEventListener('click', () => {
+    const val = fullnameInput.value.trim();
+    if (val.length < 2 || !/[a-zA-Z]/.test(val)){
+      nameField.classList.add('invalid');
+      return;
+    }
+    nameField.classList.remove('invalid');
+    const firstName = val.split(' ')[0];
+    document.getElementById('greetName').textContent = firstName;
+    document.getElementById('successName').textContent = firstName;
+    const btn = document.getElementById('toStep2');
+    setLoading(btn, true);
+    setTimeout(() => { setLoading(btn, false); goToStep(2); }, 500);
+  });
+  fullnameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter'){ e.preventDefault(); document.getElementById('toStep2').click(); } });
+
+  // ---- STEP 2: MOBILE ----
+  const mobileInput = document.getElementById('mobile');
+  const mobileField = document.getElementById('mobileField');
+  mobileInput.addEventListener('input', () => { mobileInput.value = mobileInput.value.replace(/\D/g, '').slice(0, 10); });
+
+  let resendTimer = null;
+  function startResendTimer(){
+    let seconds = 30;
+    const resendBtn = document.getElementById('resendBtn');
+    const timerSpan = document.getElementById('timerSeconds');
+    const timerText = document.getElementById('resendTimerText');
+    resendBtn.disabled = true;
+    timerText.style.display = 'inline';
+    resendBtn.style.display = 'none';
+    if (resendTimer) clearInterval(resendTimer);
+    resendTimer = setInterval(() => {
+      seconds--;
+      timerSpan.textContent = seconds + 's';
+      if (seconds <= 0){
+        clearInterval(resendTimer);
+        timerText.style.display = 'none';
+        resendBtn.style.display = 'inline';
+        resendBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  document.getElementById('toStep3').addEventListener('click', () => {
+    if (mobileInput.value.length !== 10){
+      mobileField.classList.add('invalid');
+      return;
+    }
+    mobileField.classList.remove('invalid');
+    const formatted = '+91 ' + mobileInput.value.slice(0,5) + ' ' + mobileInput.value.slice(5);
+    document.getElementById('otpSentNumber').textContent = formatted;
+    const btn = document.getElementById('toStep3');
+    setLoading(btn, true);
+    setTimeout(() => {
+      setLoading(btn, false);
+      goToStep(3);
+      showToast('OTP sent to ' + formatted);
+      startResendTimer();
+      document.querySelectorAll('.otp-box')[0].focus();
+    }, 700);
+  });
+
+  // ---- STEP 3: OTP ----
+  const otpBoxes = Array.from(document.querySelectorAll('.otp-box'));
+  otpBoxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/\D/g, '').slice(0, 1);
+      box.classList.toggle('filled', box.value !== '');
+      box.classList.remove('error');
+      document.getElementById('otpError').style.display = 'none';
+      if (box.value && i < otpBoxes.length - 1) otpBoxes[i + 1].focus();
+    });
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && i > 0) otpBoxes[i - 1].focus();
+    });
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData('text').match(/\d/g) || []).slice(0, 6);
+      digits.forEach((d, idx) => { if (otpBoxes[idx]){ otpBoxes[idx].value = d; otpBoxes[idx].classList.add('filled'); } });
+      const next = Math.min(digits.length, otpBoxes.length - 1);
+      otpBoxes[next].focus();
+    });
+  });
+
+  document.getElementById('resendBtn').addEventListener('click', () => {
+    showToast('New OTP sent to ' + document.getElementById('otpSentNumber').textContent);
+    startResendTimer();
+    otpBoxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+    otpBoxes[0].focus();
+  });
+
+  document.getElementById('toStep4').addEventListener('click', () => {
+    const code = otpBoxes.map(b => b.value).join('');
+    if (code.length !== 6){
+      otpBoxes.forEach(b => { if(!b.value) b.classList.add('error'); });
+      document.getElementById('otpError').textContent = 'Please enter all 6 digits.';
+      document.getElementById('otpError').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('toStep4');
+    setLoading(btn, true);
+    setTimeout(() => {
+      setLoading(btn, false);
+      // demo mode: any 6 digits verifies
+      if (resendTimer) clearInterval(resendTimer);
+      goToStep(4);
+      showToast('Number verified ✓');
+    }, 700);
+  });
+
+  // ---- STEP 4: PASSWORD ----
+  const passwordInput = document.getElementById('password');
+  const confirmInput = document.getElementById('confirmPassword');
+  const passField = document.getElementById('passField');
+  const confirmField = document.getElementById('confirmField');
+
+  [['togglePass1', passwordInput], ['togglePass2', confirmInput]].forEach(([btnId, input]) => {
+    const btn = document.getElementById(btnId);
+    btn.addEventListener('click', () => {
+      const isPass = input.type === 'password';
+      input.type = isPass ? 'text' : 'password';
+      const icon = btn.querySelector('.eyeIcon');
+      icon.innerHTML = isPass
+        ? '<path d="M2 2l20 20"/><path d="M9.88 9.88a3 3 0 0 0 4.24 4.24"/><path d="M6.1 6.1C3.6 7.6 1 12 1 12s4 7 11 7c2 0 3.7-.5 5.1-1.3M12 5c7 0 11 7 11 7a13.5 13.5 0 0 1-2.1 2.9"/>'
+        : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/>';
+    });
+  });
+
+  const segs = document.querySelectorAll('.strength-row .seg');
+  const strengthLabel = document.getElementById('strengthLabel');
+  const reqLen = document.getElementById('req-len');
+  const reqNum = document.getElementById('req-num');
+  const reqCase = document.getElementById('req-case');
+
+  function evaluatePassword(){
+    const val = passwordInput.value;
+    const hasLen = val.length >= 8;
+    const hasNum = /\d/.test(val);
+    const hasCase = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    reqLen.classList.toggle('met', hasLen);
+    reqNum.classList.toggle('met', hasNum);
+    reqCase.classList.toggle('met', hasCase);
+
+    const score = [hasLen, hasNum, hasCase, val.length >= 12].filter(Boolean).length;
+    segs.forEach((seg, i) => {
+      seg.style.background = i < score ? (score <= 1 ? '#ff6b6b' : score <= 2 ? '#ffb454' : '#00ffa3') : 'var(--line)';
+    });
+    const labels = ['Enter a password', 'Weak', 'Fair', 'Good', 'Strong'];
+    strengthLabel.textContent = val.length === 0 ? labels[0] : labels[score] || labels[1];
+    return hasLen && hasNum && hasCase;
+  }
+  passwordInput.addEventListener('input', evaluatePassword);
+
+  document.getElementById('signupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (currentStep !== 4) return;
+
+    const pwValid = evaluatePassword();
+    let valid = true;
+    if (!pwValid){ passField.classList.add('invalid'); valid = false; } else { passField.classList.remove('invalid'); }
+
+    if (confirmInput.value !== passwordInput.value || confirmInput.value === ''){
+      confirmField.classList.add('invalid'); valid = false;
+    } else { confirmField.classList.remove('invalid'); }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('createAccountBtn');
+    setLoading(btn, true);
+    setTimeout(() => {
+      setLoading(btn, false);
+      goToStep(5);
+      showToast('Welcome to Scanly 🎉');
+    }, 1100);
+  });
+
+  document.getElementById('googleBtn').addEventListener('click', () => showToast('Google sign-up not configured in this demo'));
+  document.getElementById('linkedinBtn').addEventListener('click', () => showToast('LinkedIn sign-up not configured in this demo'));
+
+  goToStep(1);
+</script>
+
+</body>
+</html>

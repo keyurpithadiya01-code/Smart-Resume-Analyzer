@@ -1,0 +1,324 @@
+import { useEffect, useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import api from '../api/client';
+import ScoreGauge from '../components/ScoreGauge';
+import PageHeader from '../components/PageHeader';
+import PillTabs from '../components/PillTabs';
+import MetricBar from '../components/MetricBar';
+import Reveal from '../components/Reveal';
+import { useAuth } from '../context/AuthContext';
+
+function ScanPreview() {
+  return (
+    <div className="scan-preview">
+      <div className="scan-preview-card">
+        <div className="font-display font-bold text-sm text-[#1a1d22]">Your Resume</div>
+        <div className="text-[9px] text-[#7a8088] mt-1 tracking-wide uppercase">Scanly · ATS Preview</div>
+        <div className="r-line med" />
+        <div className="r-line short" />
+        <div className="r-line med" style={{ marginTop: 18 }} />
+        <div className="r-line med" />
+        <div className="scan-line-app" />
+      </div>
+    </div>
+  );
+}
+
+export default function Analyzer() {
+  const { isAdmin } = useAuth();
+  const [tab, setTab] = useState('standard');
+  const [categories, setCategories] = useState([]);
+  const [roles, setRoles] = useState({});
+  const [category, setCategory] = useState('');
+  const [role, setRole] = useState('');
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [stdResult, setStdResult] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [videos, setVideos] = useState({ resume: {}, interview: {} });
+  const [jobDesc, setJobDesc] = useState('');
+  const [aiResult, setAiResult] = useState(null);
+  const [aiStats, setAiStats] = useState(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    api.get('/config/job-roles').then(({ data }) => {
+      setCategories(data.categories);
+      setRoles(data.roles);
+      if (data.categories[0]) setCategory(data.categories[0]);
+    });
+    api.get('/config/videos').then(({ data }) => setVideos(data));
+    loadAiStats();
+  }, []);
+
+  useEffect(() => {
+    if (category && roles[category]) {
+      const r = Object.keys(roles[category])[0];
+      setRole(r);
+    }
+  }, [category, roles]);
+
+  useEffect(() => {
+    if (role) {
+      api.get(`/config/courses/${encodeURIComponent(role)}`).then(({ data }) => setCourses(data.courses || []));
+    }
+  }, [role]);
+
+  async function loadAiStats() {
+    const { data } = await api.get('/ai/stats');
+    setAiStats(data);
+  }
+
+  async function runStandard(e) {
+    e.preventDefault();
+    if (!file) return setError('Upload a PDF or DOCX resume');
+    setLoading(true);
+    setError('');
+    setStdResult(null);
+    try {
+      const fd = new FormData();
+      fd.append('resume', file);
+      fd.append('category', category);
+      fd.append('role', role);
+      const { data } = await api.post('/analyze/standard', fd);
+      setStdResult(data.result);
+    } catch (err) {
+      const backendError = err.response?.data?.error;
+      setError(backendError ? String(backendError) : (err.message || 'Unknown error occurred'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function runAi(e) {
+    e.preventDefault();
+    if (!file) return setError('Upload a PDF or DOCX resume');
+    setLoading(true);
+    setError('');
+    setAiResult(null);
+    try {
+      const fd = new FormData();
+      fd.append('resume', file);
+      fd.append('jobRole', role);
+      if (jobDesc) fd.append('jobDescription', jobDesc);
+      const { data } = await api.post('/ai/analyze', fd);
+      setAiResult(data);
+      loadAiStats();
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function resetAiStats() {
+    await api.delete('/ai/stats');
+    loadAiStats();
+  }
+
+  const roleList = category ? Object.keys(roles[category] || {}) : [];
+  const hasResult = tab === 'standard' ? !!stdResult : !!aiResult;
+  const activeScores = tab === 'standard' && stdResult
+    ? [
+        { label: 'ATS Score', value: stdResult.ats_score },
+        { label: 'Keyword Match', value: stdResult.keyword_match?.score },
+        { label: 'Format', value: stdResult.format_score },
+      ]
+    : tab === 'ai' && aiResult
+      ? [
+          { label: 'Resume Score', value: aiResult.score },
+          { label: 'ATS Score', value: aiResult.ats_score },
+        ]
+      : [];
+
+  return (
+    <div className="page-container">
+      <PageHeader
+        eyebrow="Scanly · ATS Analysis"
+        title="Resume Analyzer"
+        subtitle="Drop in your resume — Scanly scores it line by line, just like the landing demo."
+      />
+
+      <PillTabs
+        tabs={[
+          { id: 'standard', label: 'Standard Analyzer' },
+          { id: 'ai', label: 'AI Analyzer' },
+        ]}
+        active={tab}
+        onChange={setTab}
+      />
+
+      <Reveal>
+        <div className="split-panel">
+          <div className="split-panel-left">
+            <p className="form-section-label">Upload & Configure</p>
+            <div className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Category</label>
+                  <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+                    {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Target Role</label>
+                  <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
+                    {roleList.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Resume File</label>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className={`upload-zone-app ${file ? 'has-file' : ''}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+                >
+                  <svg className="w-8 h-8 mx-auto mb-3 text-[#00ffa3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <p className="upload-title">{file ? file.name : 'Drop resume or click to browse'}</p>
+                  <p className="upload-sub">PDF or DOCX · max 10 MB</p>
+                  <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                </div>
+              </div>
+
+              {tab === 'ai' && (
+                <div>
+                  <label className="label">Job Description (optional)</label>
+                  <textarea className="input min-h-[90px]" value={jobDesc} onChange={(e) => setJobDesc(e.target.value)} placeholder="Paste job description for smarter AI matching…" />
+                </div>
+              )}
+
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+              <button type="button" onClick={tab === 'standard' ? runStandard : runAi} disabled={loading} className="btn-primary w-full sm:w-auto">
+                {loading ? 'Scanning…' : 'Scan my resume →'}
+              </button>
+            </div>
+          </div>
+
+          <div className="split-panel-right dark">
+            {!hasResult && !loading && (
+              <div className="empty-state-panel">
+                <ScanPreview />
+                <p className="mt-6">Upload a resume and hit scan — live metrics appear here with animated bars.</p>
+              </div>
+            )}
+            {loading && (
+              <div className="empty-state-panel">
+                <ScanPreview />
+                <p className="mt-6 text-[#00ffa3]">Scanning your resume…</p>
+              </div>
+            )}
+            {!loading && hasResult && (
+              <div>
+                <p className="form-section-label" style={{ color: '#00ffa3' }}>Live Results</p>
+                <div className="flex flex-wrap justify-center gap-6 mb-6">
+                  {tab === 'standard' && stdResult && (
+                    <>
+                      <ScoreGauge score={stdResult.ats_score} label="ATS Score" />
+                      <ScoreGauge score={stdResult.keyword_match?.score} label="Keywords" />
+                      <ScoreGauge score={stdResult.format_score} label="Format" />
+                    </>
+                  )}
+                  {tab === 'ai' && aiResult && (
+                    <>
+                      <ScoreGauge score={aiResult.score} label="Resume Score" />
+                      <ScoreGauge score={aiResult.ats_score} label="ATS Score" />
+                    </>
+                  )}
+                </div>
+                {activeScores.map((s, i) => (
+                  <MetricBar key={s.label} label={s.label} value={s.value} delay={i * 120} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </Reveal>
+
+      {tab === 'standard' && stdResult && (
+        <Reveal className="mt-6">
+          <div className="bento-grid cols-2">
+            {stdResult.keyword_match?.missing_skills?.length > 0 && (
+              <div className="modern-card lift">
+                <h3 className="modern-card-title">Missing Skills</h3>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {stdResult.keyword_match.missing_skills.map((s) => (
+                    <span key={s} className="px-2.5 py-1 bg-[#ffb454]/10 text-[#ffb454] border border-[#ffb454]/20 rounded-lg text-sm">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className={`modern-card lift ${!stdResult.keyword_match?.missing_skills?.length ? 'bento-span-2' : ''}`}>
+              <h3 className="modern-card-title">Recommendations</h3>
+              <ul className="list-disc list-inside text-sm text-[#c9cbc5] space-y-1.5 mt-3">
+                {stdResult.suggestions?.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+            {courses.length > 0 && (
+              <div className="modern-card lift">
+                <h3 className="modern-card-title">Recommended Courses</h3>
+                <ul className="space-y-2 mt-3">
+                  {courses.map(([title, url]) => (
+                    <li key={url}><a href={url} target="_blank" rel="noreferrer" className="text-[#00ffa3] hover:underline text-sm">{title}</a></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(videos.resume && Object.keys(videos.resume).length > 0) && (
+              <div className="modern-card lift bento-span-2">
+                <h3 className="modern-card-title">Resume & Interview Videos</h3>
+                {Object.entries(videos.resume).map(([cat, items]) => (
+                  <div key={cat} className="mt-3">
+                    <p className="text-sm text-[#00ffa3] mb-1">{cat}</p>
+                    <ul className="space-y-1 text-sm">
+                      {(items || []).map(([t, u]) => <li key={u}><a href={u} target="_blank" rel="noreferrer" className="text-[#c9cbc5] hover:text-white">{t}</a></li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Reveal>
+      )}
+
+      {tab === 'ai' && (
+        <Reveal className="mt-6">
+          {aiStats && (
+            <div className="bento-grid cols-4 mb-6">
+              {[
+                ['Total AI Scans', aiStats.total],
+                ['Avg Score', aiStats.averageScore],
+                ['Avg ATS', aiStats.averageAts],
+              ].map(([l, v]) => (
+                <div key={l} className="stat-tile">
+                  <p className="stat-tile-value">{v}</p>
+                  <p className="stat-tile-label">{l}</p>
+                </div>
+              ))}
+              {isAdmin && (
+                <button type="button" onClick={resetAiStats} className="stat-tile text-left hover:border-[#ffb454]/30">
+                  <p className="stat-tile-value text-[#ffb454]">↺</p>
+                  <p className="stat-tile-label">Reset Stats</p>
+                </button>
+              )}
+            </div>
+          )}
+          {aiResult && (
+            <div className="modern-card">
+              <h3 className="modern-card-title">AI Full Report</h3>
+              <div className="prose prose-invert prose-sm max-w-none mt-4 border-t border-[#232b35] pt-4">
+                <ReactMarkdown>{aiResult.full_response}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+        </Reveal>
+      )}
+    </div>
+  );
+}

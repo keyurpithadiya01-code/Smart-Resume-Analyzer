@@ -1,0 +1,107 @@
+.theme-classy {
+  /* Deep OLED black background for the main layout wrapper */
+  background-color: #050505 !important;
+  color: #f8f9fa;
+}
+
+/* Background overrides */
+.theme-classy .bg-\\[\\#0b0f14\\] { background-color: #050505 !important; }
+.theme-classy .bg-\\[\\#10161d\\] { background-color: #111111 !important; }
+.theme-classy .bg-\\[\\#10161d\\]\\/80 { background-color: rgba(17, 17, 17, 0.8) !important; }
+.theme-classy .bg-\\[\\#10161d\\]\\/90 { background-color: rgba(17, 17, 17, 0.9) !important; }
+.theme-classy .bg-\\[\\#161d26\\] { background-color: #1a1a1a !important; }
+.theme-classy .bg-\\[\\#161d26\\]\\/50 { background-color: rgba(26, 26, 26, 0.5) !important; }
+
+/* Border overrides */
+.theme-classy .border-\\[\\#232b35\\] { border-color: #222222 !important; }
+.theme-classy .border-\\[\\#232b35\\]\\/60 { border-color: rgba(34, 34, 34, 0.6) !important; }
+.theme-classy .border-\\[\\#232b35\\]\\/40 { border-color: rgba(34, 34, 34, 0.4) !important; }
+.theme-classy .border-\\[\\#232b35\\]\\/50 { border-color: rgba(34, 34, 34, 0.5) !important; }
+
+/* Text overrides */
+.theme-classy .text-\\[\\#f0f0ec\\] { color: #ffffff !important; }
+.theme-classy .text-\\[\\#6b7785\\] { color: #a1a1aa !important; }
+.theme-classy .text-\\[\\#c9cbc5\\] { color: #d4d4d8 !important; }
+
+/* Primary Accents (Cyan -> Crisp White/Silver) */
+.theme-classy .text-\\[\\#00ffa3\\] { color: #ffffff !important; }
+.theme-classy .bg-\\[\\#00ffa3\\] { background-color: #ffffff !important; color: #000000 !important; }
+.theme-classy .border-\\[\\#00ffa3\\] { border-color: #ffffff !important; }
+.theme-classy .border-\\[\\#00ffa3\\]\\/20 { border-color: rgba(255, 255, 255, 0.2) !important; }
+.theme-classy .border-\\[\\#00ffa3\\]\\/40 { border-color: rgba(255, 255, 255, 0.4) !important; }
+.theme-classy .border-\\[\\#00ffa3\\]\\/50 { border-color: rgba(255, 255, 255, 0.5) !important; }
+.theme-classy .bg-\\[\\#00ffa3\\]\\/15 { background-color: rgba(255, 255, 255, 0.1) !important; }
+.theme-classy .bg-\\[\\#00ffa3\\]\\/20 { background-color: rgba(255, 255, 255, 0.15) !important; }
+.theme-classy .accent-\\[\\#00ffa3\\] { accent-color: #ffffff !important; }
+
+/* Secondary Accents (Orange/Purple -> Dark Gray/Silver) */
+.theme-classy .text-\\[\\#ffb454\\] { color: #d4d4d8 !important; }
+.theme-classy .bg-\\[\\#ffb454\\] { background-color: #27272a !important; color: #ffffff !important; }
+.theme-classy .bg-\\[\\#ffb454\\]\\/10 { background-color: rgba(39, 39, 42, 0.3) !important; }
+.theme-classy .bg-\\[\\#ffb454\\]\\/20 { background-color: rgba(39, 39, 42, 0.6) !important; }
+.theme-classy .border-\\[\\#ffb454\\]\\/20 { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+/* Component Specific Overrides */
+.theme-classy .card-glow {
+  background-color: #111111 !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-classy .input {
+  background-color: #0a0a0a !important;
+  border-color: #222222 !important;
+  color: #ffffff !important;
+}
+.theme-classy .input:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+.theme-classy .btn-primary {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15) !important;
+}
+.theme-classy .btn-primary:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.theme-classy .btn-secondary {
+  background-color: #111111 !important;
+  border-color: #222222 !important;
+  color: #ffffff !important;
+}
+.theme-classy .btn-secondary:hover {
+  background-color: #1a1a1a !important;
+}
+
+.theme-classy .nav-active {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.theme-classy .tab-active {
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.theme-classy .hover\\:text-\\[\\#f0f0ec\\]:hover {
+  color: #ffffff !important;
+}
+
+/* Animations for Logo */
+@keyframes blink-cyan {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(0, 255, 163, 0.6), 0 0 16px rgba(0, 255, 163, 0.4);
+  }
+  50% {
+    opacity: 0.5;
+    text-shadow: 0 0 4px rgba(0, 255, 163, 0.2);
+  }
+}
+.theme-classy .animate-blink-cyan {
+  animation: blink-cyan 2.5s infinite ease-in-out;
+}

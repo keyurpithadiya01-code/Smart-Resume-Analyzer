@@ -1,0 +1,30 @@
+{
+  "name": "resume-analyzer-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --dns-result-order=ipv4first --watch src/index.js",
+    "start": "node --dns-result-order=ipv4first src/index.js",
+    "seed": "node src/scripts/seedAdmin.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "docx": "^9.5.0",
+    "dotenv": "^16.5.0",
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.9.0",
+    "mongoose": "^8.14.0",
+    "multer": "^1.4.5-lts.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^9.0.1",
+    "pdf-parse": "^1.1.1",
+    "twilio": "^6.0.2"
+  }
+}

@@ -1,0 +1,78 @@
+import 'dotenv/config';
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { connectDB } from './config/db.js';
+import authRoutes from './routes/auth.js';
+import userAuthRoutes from './routes/userAuth.js';
+import configRoutes from './routes/config.js';
+import analyzeRoutes from './routes/analyze.js';
+import aiRoutes from './routes/ai.js';
+import builderRoutes from './routes/builder.js';
+import dashboardRoutes from './routes/dashboard.js';
+import jobsRoutes from './routes/jobs.js';
+import feedbackRoutes from './routes/feedback.js';
+
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: '2mb' }));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
+
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, gemini: Boolean(process.env.GOOGLE_API_KEY) });
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/auth/user', userAuthRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/analyze', analyzeRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/builder', builderRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/jobs', jobsRoutes);
+app.use('/api/feedback', feedbackRoutes);
+
+const clientDist = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientDist));
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'), (err) => {
+    if (err) res.status(404).json({ error: 'Client not built. Run npm run build in client/' });
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
+});
+
+async function start() {
+  await connectDB();
+  app.listen(PORT, () => console.log(`Server http://localhost:${PORT}`));
+}
+
+start().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

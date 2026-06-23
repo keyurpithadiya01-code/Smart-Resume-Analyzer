@@ -1,0 +1,230 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --color-bg: #0b0f14;
+  --color-bg-elevated: #10161d;
+  --color-surface: #161d26;
+  --color-surface-light: #1a2238;
+  --color-border: #232b35;
+  --color-primary: #00ffa3;
+  --color-primary-bright: #33ffb5;
+  --color-purple: #ffb454;
+  --color-success: #00ffa3;
+  --color-muted: #6b7785;
+  --color-text: #f0f0ec;
+}
+
+body {
+  @apply bg-[#0b0f14] text-[#f0f0ec] font-sans antialiased min-h-screen;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-[#00ffa3] via-[#33ffb5] to-[#00ffa3] bg-clip-text text-transparent;
+}
+
+.gradient-pro {
+  @apply bg-gradient-to-r from-[#ffb454] to-[#00ffa3];
+}
+
+.card {
+  @apply bg-[#10161d]/90 border border-[#232b35] rounded-2xl p-5 shadow-lg shadow-black/20 backdrop-blur-sm;
+}
+
+.card-glow {
+  @apply bg-[#10161d]/90 border border-[#232b35]/80 rounded-2xl p-5;
+  box-shadow: 0 0 0 1px rgba(0, 255, 163, 0.08), 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.btn-primary {
+  @apply bg-[#00ffa3] text-[#0b0f14] font-medium px-5 py-2.5 rounded-xl hover:opacity-90 transition disabled:opacity-50 shadow-lg shadow-[#00ffa3]/20;
+}
+
+.btn-pro {
+  @apply bg-gradient-to-r from-[#ffb454] to-[#00ffa3] text-[#0b0f14] font-medium px-5 py-2.5 rounded-xl hover:opacity-90 transition shadow-lg shadow-[#00ffa3]/20;
+}
+
+.btn-secondary {
+  @apply border border-[#232b35] text-[#f0f0ec] px-5 py-2.5 rounded-xl hover:bg-[#161d26] transition bg-[#10161d]/50;
+}
+
+.input {
+  @apply w-full bg-[#0b0f14] border border-[#232b35] rounded-xl px-4 py-2.5 text-[#f0f0ec] placeholder:text-[#6b7785] focus:outline-none focus:border-[#00ffa3] focus:ring-1 focus:ring-[#00ffa3]/30 transition;
+}
+
+.label {
+  font-family: 'IBM Plex Mono', monospace;
+  @apply block text-[11.5px] text-[#6b7785] mb-1.5 font-medium uppercase tracking-wide;
+}
+
+.tab-active {
+  @apply border-b-2 border-[#00ffa3] text-[#00ffa3] font-medium;
+}
+
+.chip {
+  @apply px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer;
+}
+
+.chip-active {
+  @apply bg-[#00ffa3] text-[#0b0f14] border border-[#00ffa3];
+}
+
+.chip-inactive {
+  @apply bg-[#10161d] text-[#c9cbc5] border border-[#232b35] hover:border-[#00ffa3]/50 hover:text-white;
+}
+
+.nav-active {
+  @apply bg-[#00ffa3]/15 text-[#00ffa3] border border-[#00ffa3]/20;
+}
+
+.nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#c9cbc5] hover:bg-[#161d26] hover:text-white transition;
+}
+
+@keyframes blink-cyan {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 163, 0.6));
+  }
+  50% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 2px rgba(0, 255, 163, 0.2));
+  }
+}
+.animate-blink-cyan {
+  animation: blink-cyan 2.5s infinite ease-in-out;
+}
+
+/* ---------- Scanly App Shell ---------- */
+.scanly-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #00ffa3;
+  box-shadow: 0 0 12px #00ffa3, 0 0 24px rgba(0, 255, 163, 0.25);
+  animation: pulse-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.78); }
+}
+
+.app-shell {
+  --scan: #00ffa3;
+  --scan-dim: rgba(0, 255, 163, 0.25);
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+.app-shell .app-header {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.page-container {
+  @apply max-w-6xl mx-auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  @apply mb-2;
+}
+
+.page-eyebrow {
+  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  @apply text-[11px] tracking-[0.08em] uppercase text-[#00ffa3] mb-2 flex items-center gap-2;
+}
+
+.page-eyebrow::before {
+  content: '';
+  @apply w-5 h-px bg-[#00ffa3]/60;
+}
+
+.page-title {
+  @apply font-display text-2xl lg:text-3xl font-bold text-[#f0f0ec] tracking-tight;
+}
+
+.page-subtitle {
+  @apply text-sm text-[#6b7785] mt-1.5 max-w-2xl;
+}
+
+.tab-bar {
+  @apply flex gap-1 border-b border-[#232b35] mb-6;
+}
+
+.tab-bar button {
+  @apply pb-2.5 px-3 text-sm transition relative;
+}
+
+.tab-bar button.tab-active {
+  @apply text-[#00ffa3] font-medium;
+}
+
+.tab-bar button:not(.tab-active) {
+  @apply text-[#6b7785] hover:text-[#f0f0ec];
+}
+
+.tab-bar button.tab-active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-0.5 bg-[#00ffa3] rounded-full;
+}
+
+.section-card-title {
+  @apply font-display font-semibold text-[#f0f0ec] mb-3;
+}
+
+.upload-zone-app {
+  @apply border border-dashed border-[#232b35] rounded-xl p-6 text-center cursor-pointer transition;
+}
+
+.upload-zone-app:hover {
+  @apply border-[#00ffa3]/60 bg-[#00ffa3]/5;
+}
+
+.upload-zone-app.has-file {
+  @apply border-[#00ffa3]/40 bg-[#00ffa3]/5;
+}
+
+.upload-zone-app .upload-title {
+  @apply font-display font-semibold text-sm text-[#f0f0ec];
+}
+
+.upload-zone-app .upload-sub {
+  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  @apply text-[11px] text-[#6b7785] mt-1;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease forwards;
+}
+
+.animate-fade-up-delay-1 { animation-delay: 0.08s; opacity: 0; }
+.animate-fade-up-delay-2 { animation-delay: 0.16s; opacity: 0; }
+.animate-fade-up-delay-3 { animation-delay: 0.24s; opacity: 0; }
+
+.app-shell main .page-container > * {
+  animation: fade-up 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-fade-up-delay-3,
+  .app-shell main .page-container > *,
+  .scanly-dot {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
