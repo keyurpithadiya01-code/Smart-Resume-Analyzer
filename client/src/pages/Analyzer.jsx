@@ -212,7 +212,8 @@ export default function Analyzer() {
                             setFile(null);
                           }
                         } catch (err) {
-                          setError('Failed to upload resume to backend');
+                          console.error('Storage upload failed:', err);
+                          setError(err.response?.data?.error || 'Failed to upload resume to backend');
                         }
                       }
                     }} />
@@ -243,7 +244,8 @@ export default function Analyzer() {
                             setFile(null);
                           }
                         } catch (err) {
-                          setError('Failed to upload resume to backend');
+                          console.error('Storage upload failed:', err);
+                          setError(err.response?.data?.error || 'Failed to upload resume to backend');
                         }
                       }
                     }} />

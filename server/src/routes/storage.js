@@ -18,7 +18,10 @@ router.post('/upload', requireUser, upload.single('resume'), async (req, res) =>
       return res.status(400).json({ error: 'Resume file is required' });
     }
 
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user.id || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Invalid user token payload' });
+    }
     
     // Use findOneAndUpdate with upsert: true to either create or overwrite
     const updatedResume = await UserResume.findOneAndUpdate(
@@ -49,7 +52,10 @@ router.post('/upload', requireUser, upload.single('resume'), async (req, res) =>
 // Get the metadata of the user's stored resume
 router.get('/mine', requireUser, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user.id || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Invalid user token payload' });
+    }
     // Only select metadata, omit the massive 'data' buffer for fast loading
     const resume = await UserResume.findOne({ userId }).select('filename size mimetype updatedAt');
     
@@ -74,7 +80,10 @@ router.get('/mine', requireUser, async (req, res) => {
 // Download the actual file buffer
 router.get('/download', requireUser, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user.id || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Invalid user token payload' });
+    }
     const resume = await UserResume.findOne({ userId });
     
     if (!resume) {
