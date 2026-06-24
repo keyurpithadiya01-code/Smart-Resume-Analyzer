@@ -651,43 +651,105 @@
     border-right: none;
     border-bottom: 1px solid rgba(35, 43, 53, 0.8);
   }
+  .split-panel-right {
+    min-height: 240px;
+  }
   .bento-grid.cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .app-sidebar {
-    width: 72px;
-  }
-  .app-sidebar-brand .scanly-tagline,
-  .app-nav-group-label,
-  .app-nav-link span,
-  .app-user-card > div:last-child,
-  .app-sidebar-footer .nav-item span {
-    display: none;
-  }
-  .app-nav-link {
-    justify-content: center;
-    padding: 12px;
-  }
   .app-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 14px 18px;
+    padding: 12px 16px;
   }
   .app-content {
-    padding: 18px 16px 32px;
+    padding: 16px 16px 28px;
   }
   .page-hero-inner {
-    padding: 22px 20px;
+    padding: 20px 18px;
   }
-  .bento-grid.cols-4,
+  .bento-grid.cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .bento-grid.cols-2 {
     grid-template-columns: 1fr;
   }
   .bento-span-2 {
     grid-column: span 1;
+  }
+  .split-panel-right {
+    min-height: 200px;
+  }
+}
+
+/* -------- Mobile phones (≤480px) -------- */
+@media (max-width: 480px) {
+  .app-topbar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .app-content {
+    padding: 14px 12px 24px;
+  }
+  .page-hero-inner {
+    padding: 16px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .page-hero-title {
+    font-size: 1.35rem;
+  }
+  .bento-grid.cols-4,
+  .bento-grid.cols-2 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .bento-span-2 {
+    grid-column: span 1;
+  }
+  .split-panel-left,
+  .split-panel-right {
+    padding: 18px 16px;
+  }
+  .split-panel-right {
+    min-height: 160px;
+  }
+  .stat-tile {
+    padding: 16px 16px;
+  }
+  .stat-tile-value {
+    font-size: 1.4rem;
+  }
+  .modern-card {
+    padding: 16px 16px;
+  }
+  .pill-tabs {
+    width: 100%;
+    display: flex;
+  }
+  .pill-tabs button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .page-container {
+    gap: 16px;
+  }
+  .metric-row-app {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .metric-row-app .mlabel {
+    min-width: 80px;
+    font-size: 11px;
+  }
+  .metric-bar-wrap-app {
+    margin: 0 8px;
+  }
+  .app-quick-chip {
+    font-size: 11px;
+    padding: 7px 11px;
   }
 }
 

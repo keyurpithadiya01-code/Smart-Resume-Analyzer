@@ -18,6 +18,8 @@
 
 body {
   @apply bg-[#0b0f14] text-[#f0f0ec] font-sans antialiased min-h-screen;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 .gradient-text {
@@ -129,6 +131,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
+  min-width: 0;
 }
 
 .page-header {

@@ -439,8 +439,30 @@
 
 @media (max-width: 900px) {
   .auth-shell .visual-panel { display: none; }
-  .auth-shell .form-panel { max-width: none; flex: 1; padding: 32px 22px; }
+  .auth-shell .form-panel { max-width: none; flex: 1; padding: 28px 20px; }
   .auth-shell .mobile-logo { display: flex; }
   .auth-shell .mobile-steps { display: flex; }
+}
+
+@media (max-width: 480px) {
+  .auth-shell .form-panel { padding: 24px 16px; }
+  .auth-shell h1 { font-size: 26px; }
+  .auth-shell .otp-box {
+    font-size: 18px;
+  }
+  .auth-shell .social-row { flex-direction: column; }
+  .auth-shell .btn-social { justify-content: center; }
+}
+
+@media (max-width: 380px) {
+  .auth-shell .form-panel { padding: 20px 14px; }
+  .auth-shell h1 { font-size: 22px; }
+  .auth-shell .otp-row { gap: 6px; }
+  .auth-shell .otp-box {
+    font-size: 16px;
+    border-radius: 7px;
+  }
+  .auth-shell .form-top-nav { margin-bottom: 32px; }
+  .auth-shell .journey { width: 100%; }
 }
 .auth-shell a:focus-visible, .auth-shell button:focus-visible, .auth-shell input:focus-visible { outline: 2px solid var(--scan); outline-offset: 2px; }
