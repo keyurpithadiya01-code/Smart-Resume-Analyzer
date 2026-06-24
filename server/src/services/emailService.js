@@ -27,7 +27,7 @@ export async function sendOtpEmail(email, otp) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Scanly <onboarding@resend.dev>',
+      from: 'Scanly <noreply@scanlyresume.xyz>',
       to: [email],
       subject: `${otp} is your Scanly verification code`,
       html: htmlMessage,
