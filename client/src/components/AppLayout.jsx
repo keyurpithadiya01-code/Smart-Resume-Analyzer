@@ -103,7 +103,7 @@ export default function AppLayout({ children }) {
 
         <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
           {/* Desktop profile */}
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="hidden sm:flex items-center">
             {isLoggedIn ? (
               <div className="lg:border-l lg:border-[#232b35] lg:pl-6 relative" ref={profileMenuRef}>
                 <button
@@ -113,8 +113,8 @@ export default function AppLayout({ children }) {
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="app-user-avatar !w-8 !h-8 !text-xs flex-shrink-0">{userInitial(user.name, user.phone)}</div>
                     <div className="text-left overflow-hidden hidden sm:block">
-                      <p className="text-sm font-medium text-[#f0f0ec] truncate max-w-[80px] sm:max-w-[100px]">{user.name || user.phone}</p>
-                      <p className="text-[9px] text-[#6b7785] uppercase tracking-wider">Scanly Member</p>
+                      <p className="text-sm font-medium text-[#f0f0ec] truncate max-w-[80px] sm:max-w-[100px]">{user.name || user.phone || 'Member'}</p>
+                      <p className="text-[9px] text-[#6b7785] uppercase tracking-wider">Profile</p>
                     </div>
                   </div>
                   <svg className={`w-3.5 h-3.5 text-[#6b7785] transition-transform duration-300 flex-shrink-0 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,16 +123,45 @@ export default function AppLayout({ children }) {
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-2 w-full min-w-[140px] rounded-xl bg-[#10161d] border border-[#232b35] shadow-2xl z-50 animate-fade-up overflow-hidden">
-                    <button
-                      onClick={() => { setShowProfileMenu(false); userLogout(); }}
-                      className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-[#161d26] hover:text-red-300 transition flex items-center gap-3 font-medium"
-                    >
-                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      Logout
-                    </button>
+                  <div className="absolute top-full right-0 mt-2 w-64 rounded-xl bg-[#202123] border border-gray-700 shadow-xl z-50 animate-fade-up flex flex-col p-1.5">
+                    {/* User Info Header */}
+                    <div className="flex items-center gap-3 px-3 py-3 mb-1">
+                      <div className="app-user-avatar !w-10 !h-10 !text-sm flex-shrink-0">{userInitial(user.name, user.phone)}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-white truncate">{user.name || 'Scanly User'}</p>
+                        <p className="text-xs text-gray-400 truncate">{user.email || user.phone || 'Scanly Member'}</p>
+                      </div>
+                    </div>
+                    
+                    <hr className="border-gray-700 my-1 mx-2" />
+
+                    {/* Menu Items */}
+                    <div className="py-1">
+                      <Link to="/home" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-200 hover:bg-gray-700/50 rounded-lg transition-colors mx-1">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        Dashboard
+                      </Link>
+                      
+                      <Link to="/analyzer" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-200 hover:bg-gray-700/50 rounded-lg transition-colors mx-1">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        ATS Analysis
+                      </Link>
+                    </div>
+
+                    <hr className="border-gray-700 my-1 mx-2" />
+
+                    {/* Logout Button */}
+                    <div className="py-1">
+                      <button
+                        onClick={() => { setShowProfileMenu(false); userLogout(); }}
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-gray-700/50 rounded-lg transition-colors mx-1 w-[calc(100%-8px)] text-left font-medium"
+                      >
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
