@@ -9,39 +9,92 @@ if (!globalThis.fetch || !globalThis.fetch.isNodeFetch) {
   globalThis.fetch.isNodeFetch = true;
 }
 
+// Stable first, then newer models. Deprecated 1.5 / gemini-pro names removed (404).
+// "latest" aliases auto-route to Google's least-loaded flash model.
+const GEMINI_MODELS = [
+  'gemini-flash-lite-latest',
+  'gemini-flash-latest',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-2.0-flash',
+  'gemini-2.5-pro',
+];
+
 function extractScore(text, label) {
   const re = new RegExp(`${label}\\s*Score:\\s*(\\d{1,3})\\s*/\\s*100`, 'i');
   const m = text.match(re);
   return m ? parseInt(m[1], 10) : 0;
 }
 
+function isRetryableError(err) {
+  const msg = err?.message || '';
+  const status = err?.status;
+  return (
+    status === 503 ||
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    msg.includes('503') ||
+    msg.includes('429') ||
+    msg.includes('high demand') ||
+    msg.includes('overloaded') ||
+    msg.includes('UNAVAILABLE') ||
+    msg.includes('fetch failed')
+  );
+}
+
+function isModelUnavailableError(err) {
+  const msg = err?.message || '';
+  const status = err?.status;
+  return status === 404 || msg.includes('404') || msg.includes('not found') || msg.includes('not supported');
+}
+
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function generateContentWithFallback(genAI, modelNames, prompt, maxRetriesPerModel = 2) {
+  const failures = [];
+
   for (const modelName of modelNames) {
     const model = genAI.getGenerativeModel({ model: modelName });
-    let attempt = 0;
-    while (attempt < maxRetriesPerModel) {
+
+    for (let attempt = 0; attempt < maxRetriesPerModel; attempt++) {
       try {
         const result = await model.generateContent(prompt);
         return { result, modelUsed: modelName };
       } catch (err) {
-        if (err.message?.includes('503') || err.message?.includes('429') || err.status === 503 || err.status === 429) {
-          attempt++;
-          if (attempt >= maxRetriesPerModel) {
-            console.warn(`[Gemini Fallback] Model ${modelName} overloaded, switching to next model...`);
-            break; // Break retry loop, try next model
-          }
-          const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-          await new Promise(r => setTimeout(r, delay));
-        } else if (err.message?.includes('404') || err.status === 404) {
-          console.warn(`[Gemini Fallback] Model ${modelName} not found or unsupported. Skipping to next model...`);
-          break; // Model doesn't exist, try next model immediately
-        } else {
-          throw err; // Hard errors (e.g., 400 Bad Request, 403 API key invalid) fail immediately
+        const detail = err?.message || String(err);
+
+        if (isModelUnavailableError(err)) {
+          console.warn(`[Gemini] Model ${modelName} unavailable: ${detail.slice(0, 120)}`);
+          failures.push(`${modelName}: unavailable`);
+          break;
         }
+
+        if (isRetryableError(err)) {
+          const isLastAttempt = attempt >= maxRetriesPerModel - 1;
+          if (isLastAttempt) {
+            console.warn(`[Gemini] Model ${modelName} overloaded after ${maxRetriesPerModel} attempts`);
+            failures.push(`${modelName}: overloaded`);
+            break;
+          }
+          const delay = Math.pow(2, attempt + 1) * 1000 + Math.random() * 500;
+          console.warn(`[Gemini] ${modelName} busy (attempt ${attempt + 1}), retrying in ${Math.round(delay)}ms`);
+          await sleep(delay);
+          continue;
+        }
+
+        throw err;
       }
     }
   }
-  throw new Error('All Gemini models are currently experiencing high demand (503). Please try again later.');
+
+  const summary = failures.length ? failures.join('; ') : 'unknown error';
+  throw new Error(
+    `All Gemini models failed (${summary}). Please wait a moment and try again.`
+  );
 }
 
 export async function analyzeWithGemini(resumeText, { jobDescription, jobRole, apiKey }) {
@@ -77,11 +130,7 @@ ${resumeText}`;
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const { result, modelUsed } = await generateContentWithFallback(
-      genAI,
-      ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro'],
-      prompt
-    );
+    const { result, modelUsed } = await generateContentWithFallback(genAI, GEMINI_MODELS, prompt);
     const analysis = result.response.text();
     return {
       analysis,
@@ -125,18 +174,12 @@ Resume Text:
 ${resumeText}`;
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const { result } = await generateContentWithFallback(
-    genAI,
-    ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro'],
-    prompt
-  );
+  const { result } = await generateContentWithFallback(genAI, GEMINI_MODELS, prompt);
   let text = result.response.text().trim();
-  
-  if (text.startsWith('\`\`\`json')) text = text.replace(/^\`\`\`json/, '');
-  if (text.startsWith('\`\`\`')) text = text.replace(/^\`\`\`/, '');
-  if (text.endsWith('\`\`\`')) text = text.replace(/\`\`\`$/, '');
+
+  if (text.startsWith('```json')) text = text.replace(/^```json/, '');
+  if (text.startsWith('```')) text = text.replace(/^```/, '');
+  if (text.endsWith('```')) text = text.replace(/```$/, '');
 
   return JSON.parse(text.trim());
 }
-
-
