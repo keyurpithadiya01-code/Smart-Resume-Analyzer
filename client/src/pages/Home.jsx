@@ -183,7 +183,7 @@ export default function Home() {
 
       {frequentGaps.length > 0 && (
         <Reveal delay={160}>
-        <div className="modern-card lift mt-6">
+        <div className="modern-card lift mt-10">
           <h3 className="font-semibold text-[#f0f0ec] mb-1">Common Skill Gaps</h3>
           <p className="text-xs text-[#6b7785] mb-6">Skills missing most often across your analyses</p>
           <div className="flex flex-wrap gap-4">
@@ -205,7 +205,7 @@ export default function Home() {
       )}
 
       <Reveal delay={200}>
-      <div className="modern-card mt-6">
+      <div className="modern-card mt-10">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-semibold text-[#f0f0ec]">Analysis History</h3>

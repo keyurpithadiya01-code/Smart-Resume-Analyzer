@@ -128,7 +128,7 @@ export default function Builder() {
         }
       />
       
-      <form onSubmit={generate} className="space-y-10">
+      <form onSubmit={generate} className="flex flex-col gap-10 mt-6">
         <Reveal>
         <div className="modern-card">
           <h3 className="section-card-title">Template</h3>

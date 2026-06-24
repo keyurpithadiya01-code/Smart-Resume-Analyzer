@@ -167,7 +167,7 @@ export default function Analyzer() {
         <div className="split-panel">
           <div className="split-panel-left">
             <p className="form-section-label">Upload & Configure</p>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-8 mt-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Category</label>
@@ -306,7 +306,7 @@ export default function Analyzer() {
       </Reveal>
 
       {tab === 'standard' && stdResult && (
-        <Reveal className="mt-6">
+        <Reveal className="mt-10">
           <div className="bento-grid cols-2">
             {stdResult.keyword_match?.missing_skills?.length > 0 && (
               <div className="modern-card lift">
@@ -352,7 +352,7 @@ export default function Analyzer() {
       )}
 
       {tab === 'ai' && (
-        <Reveal className="mt-6">
+        <Reveal className="mt-10">
           {aiStats && (
             <div className="bento-grid cols-4 mb-6">
               {[

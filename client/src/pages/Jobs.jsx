@@ -74,7 +74,7 @@ export default function Jobs() {
         </Reveal>
       )}
 
-      <Reveal delay={80}>
+      <Reveal delay={80} className="mt-10">
       <div className="modern-card space-y-5">
         <h3 className="section-card-title">Search Jobs</h3>
         <div className="grid md:grid-cols-2 gap-4">
@@ -147,7 +147,7 @@ export default function Jobs() {
       )}
 
       {portals.length > 0 && (
-        <Reveal delay={120}>
+        <Reveal delay={120} className="mt-10">
         <div className="mt-6">
           <h2 className="modern-card-title mb-4">Portal Results</h2>
           <div className="bento-grid cols-2">
