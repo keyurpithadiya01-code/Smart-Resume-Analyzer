@@ -7,6 +7,7 @@ import PillTabs from '../components/PillTabs';
 import MetricBar from '../components/MetricBar';
 import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
+import { saveResume, getResume } from '../utils/storage';
 
 function ScanPreview() {
   return (
@@ -32,6 +33,7 @@ export default function Analyzer() {
   const [category, setCategory] = useState('');
   const [role, setRole] = useState('');
   const [file, setFile] = useState(null);
+  const [isSavedResume, setIsSavedResume] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stdResult, setStdResult] = useState(null);
@@ -51,6 +53,18 @@ export default function Analyzer() {
     api.get('/config/videos').then(({ data }) => setVideos(data));
     loadAiStats();
   }, []);
+
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user?.id) {
+      getResume(user.id).then(record => {
+        if (record && record.file) {
+          setFile(record.file);
+          setIsSavedResume(true);
+        }
+      });
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     if (category && roles[category]) {
@@ -171,20 +185,52 @@ export default function Analyzer() {
 
               <div>
                 <label className="label">Resume File</label>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className={`upload-zone-app ${file ? 'has-file' : ''}`}
-                  onClick={() => fileInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-                >
-                  <svg className="w-8 h-8 mx-auto mb-3 text-[#00ffa3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <p className="upload-title">{file ? file.name : 'Drop resume or click to browse'}</p>
-                  <p className="upload-sub">PDF or DOCX · max 10 MB</p>
-                  <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-                </div>
+                {file && isSavedResume ? (
+                  <div className="modern-card p-4 flex items-center justify-between border-[#00ffa3]/20 bg-[#161616]/80 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#00ffa3]/10 flex items-center justify-center text-[#00ffa3] shadow-[inset_0_0_0_1px_rgba(0,255,163,0.2)]">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                      </div>
+                      <div className="min-w-0 pr-2">
+                        <p className="text-sm font-semibold text-[#f0f0ec] truncate">{file.name}</p>
+                        <p className="text-xs text-[#9ca3af] mt-0.5">Saved Resume • {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-lg border border-[#333] bg-[#222] hover:bg-[#333] hover:text-white transition">
+                      Replace
+                    </button>
+                    <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={async (e) => {
+                      const selected = e.target.files?.[0];
+                      if (selected) {
+                        setFile(selected);
+                        setIsSavedResume(true);
+                        if (user?.id) await saveResume(user.id, selected);
+                      }
+                    }} />
+                  </div>
+                ) : (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className={`upload-zone-app ${file ? 'has-file' : ''}`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+                  >
+                    <svg className="w-8 h-8 mx-auto mb-3 text-[#00ffa3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <p className="upload-title">{file ? file.name : 'Drop resume or click to browse'}</p>
+                    <p className="upload-sub">PDF or DOCX · max 10 MB</p>
+                    <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={async (e) => {
+                      const selected = e.target.files?.[0];
+                      if (selected) {
+                        setFile(selected);
+                        setIsSavedResume(true);
+                        if (user?.id) await saveResume(user.id, selected);
+                      }
+                    }} />
+                  </div>
+                )}
               </div>
 
               {tab === 'ai' && (

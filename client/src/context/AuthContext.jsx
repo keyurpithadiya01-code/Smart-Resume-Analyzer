@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import api from '../api/client';
+import { clearAllResumes } from '../utils/storage';
 
 const AuthContext = createContext(null);
 
@@ -74,6 +75,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('userId');
     // Clear any session-level cached data so a new user never sees a prior user's state
     sessionStorage.clear();
+    // Wipe all saved resumes from IndexedDB to enforce absolute privacy
+    clearAllResumes();
     setUser(null);
   }, []);
 
