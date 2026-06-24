@@ -72,8 +72,6 @@ export function AuthProvider({ children }) {
     localStorage.clear();
     // Clear any session-level cached data so a new user never sees a prior user's state
     sessionStorage.clear();
-    // Wipe all saved resumes from IndexedDB to enforce absolute privacy
-    clearAllResumes();
     setUser(null);
   }, []);
 
