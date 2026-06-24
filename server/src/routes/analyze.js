@@ -3,6 +3,7 @@ import multer from 'multer';
 import { extractTextFromBuffer } from '../services/documentParser.js';
 import { analyzeResume } from '../services/resumeAnalyzer.js';
 import { getRoleInfo } from '../config/staticData.js';
+import UserResume from '../models/UserResume.js';
 import Resume from '../models/Resume.js';
 import ResumeAnalysis from '../models/ResumeAnalysis.js';
 import { requireUser } from '../middleware/userAuth.js';
@@ -12,9 +13,25 @@ const router = Router();
 
 router.post('/standard', requireUser, upload.single('resume'), async (req, res) => {
   try {
-    const { category, role } = req.body;
-    if (!req.file) return res.status(400).json({ error: 'Resume file is required' });
-    const rawText = await extractTextFromBuffer(req.file.buffer, req.file.mimetype, req.file.originalname);
+    const { category, role, useSavedResume } = req.body;
+    
+    let fileBuffer, fileMimetype, fileOriginalname;
+    
+    if (useSavedResume === 'true') {
+      const saved = await UserResume.findOne({ userId: req.user.userId });
+      if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
+      fileBuffer = saved.data;
+      fileMimetype = saved.mimetype;
+      fileOriginalname = saved.filename;
+    } else if (req.file) {
+      fileBuffer = req.file.buffer;
+      fileMimetype = req.file.mimetype;
+      fileOriginalname = req.file.originalname;
+    } else {
+      return res.status(400).json({ error: 'Resume file is required' });
+    }
+
+    const rawText = await extractTextFromBuffer(fileBuffer, fileMimetype, fileOriginalname);
     const jobRequirements = getRoleInfo(category, role) || { required_skills: [] };
     const result = analyzeResume(rawText, jobRequirements);
 

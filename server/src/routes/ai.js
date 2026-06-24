@@ -3,6 +3,7 @@ import multer from 'multer';
 import mongoose from 'mongoose';
 import { extractTextFromBuffer } from '../services/documentParser.js';
 import { analyzeWithGemini, parseResumeToJson } from '../services/aiResumeAnalyzer.js';
+import UserResume from '../models/UserResume.js';
 import AiAnalysis from '../models/AiAnalysis.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { requireUser } from '../middleware/userAuth.js';
@@ -12,9 +13,14 @@ const router = Router();
 
 router.post('/analyze', requireUser, upload.single('resume'), async (req, res) => {
   try {
-    const { jobRole, jobDescription, resumeText: bodyText } = req.body;
+    const { jobRole, jobDescription, resumeText: bodyText, useSavedResume } = req.body;
     let resumeText = bodyText;
-    if (req.file) {
+    
+    if (useSavedResume === 'true') {
+      const saved = await UserResume.findOne({ userId: req.user.userId });
+      if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
+      resumeText = await extractTextFromBuffer(saved.data, saved.mimetype, saved.filename);
+    } else if (req.file) {
       resumeText = await extractTextFromBuffer(req.file.buffer, req.file.mimetype, req.file.originalname);
     }
     const out = await analyzeWithGemini(resumeText, {
@@ -47,8 +53,23 @@ router.post('/analyze', requireUser, upload.single('resume'), async (req, res) =
 
 router.post('/parse-to-json', requireUser, upload.single('resume'), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'Resume file is required' });
-    const resumeText = await extractTextFromBuffer(req.file.buffer, req.file.mimetype, req.file.originalname);
+    const { useSavedResume } = req.body;
+    let fileBuffer, fileMimetype, fileOriginalname;
+    
+    if (useSavedResume === 'true') {
+      const saved = await UserResume.findOne({ userId: req.user.userId });
+      if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
+      fileBuffer = saved.data;
+      fileMimetype = saved.mimetype;
+      fileOriginalname = saved.filename;
+    } else if (req.file) {
+      fileBuffer = req.file.buffer;
+      fileMimetype = req.file.mimetype;
+      fileOriginalname = req.file.originalname;
+    } else {
+      return res.status(400).json({ error: 'Resume file is required' });
+    }
+    const resumeText = await extractTextFromBuffer(fileBuffer, fileMimetype, fileOriginalname);
     const result = await parseResumeToJson(resumeText, process.env.GOOGLE_API_KEY);
     res.json(result);
   } catch (err) {

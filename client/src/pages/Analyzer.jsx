@@ -7,7 +7,6 @@ import PillTabs from '../components/PillTabs';
 import MetricBar from '../components/MetricBar';
 import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
-import { saveResume, getResume } from '../utils/storage';
 
 function ScanPreview() {
   return (
@@ -34,6 +33,7 @@ export default function Analyzer() {
   const [role, setRole] = useState('');
   const [file, setFile] = useState(null);
   const [isSavedResume, setIsSavedResume] = useState(false);
+  const [savedResumeMeta, setSavedResumeMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stdResult, setStdResult] = useState(null);
@@ -56,15 +56,13 @@ export default function Analyzer() {
 
   const { user } = useAuth();
   useEffect(() => {
-    if (user?.id) {
-      getResume(user.id).then(record => {
-        if (record && record.file) {
-          setFile(record.file);
-          setIsSavedResume(true);
-        }
-      });
-    }
-  }, [user?.id]);
+    api.get('/storage/mine').then(({ data }) => {
+      if (data.exists) {
+        setSavedResumeMeta(data.metadata);
+        setIsSavedResume(true);
+      }
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (category && roles[category]) {
@@ -86,13 +84,14 @@ export default function Analyzer() {
 
   async function runStandard(e) {
     e.preventDefault();
-    if (!file) return setError('Upload a PDF or DOCX resume');
+    if (!file && !savedResumeMeta) return setError('Upload a PDF or DOCX resume');
     setLoading(true);
     setError('');
     setStdResult(null);
     try {
       const fd = new FormData();
-      fd.append('resume', file);
+      if (file) fd.append('resume', file);
+      else if (isSavedResume) fd.append('useSavedResume', 'true');
       fd.append('category', category);
       fd.append('role', role);
       const { data } = await api.post('/analyze/standard', fd);
@@ -107,13 +106,14 @@ export default function Analyzer() {
 
   async function runAi(e) {
     e.preventDefault();
-    if (!file) return setError('Upload a PDF or DOCX resume');
+    if (!file && !savedResumeMeta) return setError('Upload a PDF or DOCX resume');
     setLoading(true);
     setError('');
     setAiResult(null);
     try {
       const fd = new FormData();
-      fd.append('resume', file);
+      if (file) fd.append('resume', file);
+      else if (isSavedResume) fd.append('useSavedResume', 'true');
       fd.append('jobRole', role);
       if (jobDesc) fd.append('jobDescription', jobDesc);
       const { data } = await api.post('/ai/analyze', fd);
@@ -185,26 +185,35 @@ export default function Analyzer() {
 
               <div>
                 <label className="label">Resume File</label>
-                {file && isSavedResume ? (
-                  <div className="modern-card p-4 flex items-center justify-between border-[#00ffa3]/20 bg-[#161616]/80 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#00ffa3]/10 flex items-center justify-center text-[#00ffa3] shadow-[inset_0_0_0_1px_rgba(0,255,163,0.2)]">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                {isSavedResume && savedResumeMeta ? (
+                  <div className="modern-card p-5 flex items-center justify-between border-[#374151] bg-[#1e2530] shadow-[0_8px_28px_rgba(0,0,0,0.45)] relative group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-[#00ffa3]/10 flex items-center justify-center text-[#00ffa3] shadow-[inset_0_0_0_1px_rgba(0,255,163,0.2)]">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                       </div>
                       <div className="min-w-0 pr-2">
-                        <p className="text-sm font-semibold text-[#f0f0ec] truncate">{file.name}</p>
-                        <p className="text-xs text-[#9ca3af] mt-0.5">Saved Resume • {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-[15px] font-semibold text-[#f0f0ec] truncate">{savedResumeMeta.filename}</p>
+                        <p className="text-[13px] text-[#9ca3af] mt-0.5">Saved Resume • {(savedResumeMeta.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-lg border border-[#333] bg-[#222] hover:bg-[#333] hover:text-white transition">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 text-[13px] font-medium px-4 py-2 rounded-lg border border-[#374151] bg-[#161d26] hover:bg-[#232b35] hover:text-white transition">
                       Replace
                     </button>
                     <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={async (e) => {
                       const selected = e.target.files?.[0];
                       if (selected) {
-                        setFile(selected);
-                        setIsSavedResume(true);
-                        if (user?.id) await saveResume(user.id, selected);
+                        try {
+                          const fd = new FormData();
+                          fd.append('resume', selected);
+                          const { data } = await api.post('/storage/upload', fd);
+                          if (data.metadata) {
+                            setSavedResumeMeta(data.metadata);
+                            setIsSavedResume(true);
+                            setFile(null);
+                          }
+                        } catch (err) {
+                          setError('Failed to upload resume to backend');
+                        }
                       }
                     }} />
                   </div>
@@ -224,9 +233,18 @@ export default function Analyzer() {
                     <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={async (e) => {
                       const selected = e.target.files?.[0];
                       if (selected) {
-                        setFile(selected);
-                        setIsSavedResume(true);
-                        if (user?.id) await saveResume(user.id, selected);
+                        try {
+                          const fd = new FormData();
+                          fd.append('resume', selected);
+                          const { data } = await api.post('/storage/upload', fd);
+                          if (data.metadata) {
+                            setSavedResumeMeta(data.metadata);
+                            setIsSavedResume(true);
+                            setFile(null);
+                          }
+                        } catch (err) {
+                          setError('Failed to upload resume to backend');
+                        }
                       }
                     }} />
                   </div>
