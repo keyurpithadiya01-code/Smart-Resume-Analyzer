@@ -169,13 +169,13 @@ export default function Analyzer() {
             <p className="form-section-label">Upload & Configure</p>
             <div className="flex flex-col gap-8 mt-4">
               <div className="grid sm:grid-cols-2 gap-4">
-                <div>
+                <div className="min-w-0">
                   <label className="label">Category</label>
                   <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
                     {categories.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="label">Target Role</label>
                   <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
                     {roleList.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -186,9 +186,9 @@ export default function Analyzer() {
               <div>
                 <label className="label">Resume File</label>
                 {isSavedResume && savedResumeMeta ? (
-                  <div className="modern-card p-5 flex items-center justify-between border-[#374151] bg-[#1e2530] shadow-[0_8px_28px_rgba(0,0,0,0.45)] relative group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#00ffa3]/10 flex items-center justify-center text-[#00ffa3] shadow-[inset_0_0_0_1px_rgba(0,255,163,0.2)]">
+                  <div className="modern-card p-5 flex items-center justify-between border-[#374151] bg-[#1e2530] shadow-[0_8px_28px_rgba(0,0,0,0.45)] relative group gap-4">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-12 h-12 flex-shrink-0 rounded-xl bg-[#00ffa3]/10 flex items-center justify-center text-[#00ffa3] shadow-[inset_0_0_0_1px_rgba(0,255,163,0.2)]">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                       </div>
                       <div className="min-w-0 pr-2">
@@ -229,7 +229,7 @@ export default function Analyzer() {
                     <svg className="w-8 h-8 mx-auto mb-3 text-[#00ffa3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <p className="upload-title">{file ? file.name : 'Drop resume or click to browse'}</p>
+                    <p className="upload-title truncate w-full px-4">{file ? file.name : 'Drop resume or click to browse'}</p>
                     <p className="upload-sub">PDF or DOCX · max 10 MB</p>
                     <input ref={fileInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={async (e) => {
                       const selected = e.target.files?.[0];
