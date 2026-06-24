@@ -15,23 +15,30 @@ function extractScore(text, label) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
-async function generateContentWithRetry(model, prompt, maxRetries = 3) {
-  let attempt = 0;
-  while (attempt < maxRetries) {
-    try {
-      return await model.generateContent(prompt);
-    } catch (err) {
-      if (err.message?.includes('503') || err.message?.includes('429') || err.status === 503 || err.status === 429) {
-        attempt++;
-        if (attempt >= maxRetries) throw err;
-        const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-        console.warn(`Gemini API overloaded (503/429). Retrying in ${Math.round(delay)}ms... (Attempt ${attempt}/${maxRetries})`);
-        await new Promise(r => setTimeout(r, delay));
-      } else {
-        throw err;
+async function generateContentWithFallback(genAI, modelNames, prompt, maxRetriesPerModel = 2) {
+  for (const modelName of modelNames) {
+    const model = genAI.getGenerativeModel({ model: modelName });
+    let attempt = 0;
+    while (attempt < maxRetriesPerModel) {
+      try {
+        const result = await model.generateContent(prompt);
+        return { result, modelUsed: modelName };
+      } catch (err) {
+        if (err.message?.includes('503') || err.message?.includes('429') || err.status === 503 || err.status === 429) {
+          attempt++;
+          if (attempt >= maxRetriesPerModel) {
+            console.warn(`[Gemini Fallback] Model ${modelName} overloaded, switching to next model...`);
+            break; // Break retry loop, try next model
+          }
+          const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          await new Promise(r => setTimeout(r, delay));
+        } else {
+          throw err; // Hard errors (e.g., 400 Bad Request, API key invalid) fail immediately
+        }
       }
     }
   }
+  throw new Error('All Gemini models are currently experiencing high demand (503). Please try again later.');
 }
 
 export async function analyzeWithGemini(resumeText, { jobDescription, jobRole, apiKey }) {
@@ -67,14 +74,17 @@ ${resumeText}`;
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await generateContentWithRetry(model, prompt);
+    const { result, modelUsed } = await generateContentWithFallback(
+      genAI,
+      ['gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+      prompt
+    );
     const analysis = result.response.text();
     return {
       analysis,
       resume_score: extractScore(analysis, 'Resume'),
       ats_score: extractScore(analysis, 'ATS'),
-      model_used: 'gemini-2.5-flash',
+      model_used: modelUsed,
     };
   } catch (err) {
     return { error: `Analysis failed: ${err.message}` };
@@ -112,8 +122,11 @@ Resume Text:
 ${resumeText}`;
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const result = await generateContentWithRetry(model, prompt);
+  const { result } = await generateContentWithFallback(
+    genAI,
+    ['gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+    prompt
+  );
   let text = result.response.text().trim();
   
   if (text.startsWith('\`\`\`json')) text = text.replace(/^\`\`\`json/, '');
