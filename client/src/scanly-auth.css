@@ -240,11 +240,12 @@
   transition: stroke .2s ease;
 }
 .auth-shell input {
+  box-sizing: border-box;
   width: 100%;
   background: var(--ink-2);
   border: 1px solid var(--line);
   border-radius: 9px;
-  padding: 14px 16px 14px 42px;
+  padding: 14px 46px 14px 42px;
   color: var(--paper);
   font-family: var(--body);
   font-size: 14.5px;
@@ -261,10 +262,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px; /* Increased hit area for mobile */
+  margin-right: -4px; /* Offset to keep visual alignment */
   display: flex;
+  z-index: 10;
 }
-.auth-shell .toggle-pass svg { width: 16px; height: 16px; stroke: var(--slate); position: static; transform: none; }
+.auth-shell .toggle-pass svg { width: 18px; height: 18px; stroke: var(--slate); position: static; transform: none; }
 .auth-shell .toggle-pass:hover svg { stroke: var(--paper); }
 .auth-shell .mobile-prefix {
   position: absolute;

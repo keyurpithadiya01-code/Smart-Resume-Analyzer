@@ -119,7 +119,13 @@ export default function Login() {
                 />
                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>
                 <button type="button" className="toggle-pass" onClick={() => setShowPassword(!showPassword)} aria-label="Toggle password">
-                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" className="eyeIcon">
+                    {showPassword ? (
+                      <><path d="M2 2l20 20"/><path d="M9.88 9.88a3 3 0 0 0 4.24 4.24"/><path d="M6.1 6.1C3.6 7.6 1 12 1 12s4 7 11 7c2 0 3.7-.5 5.1-1.3M12 5c7 0 11 7 11 7a13.5 13.5 0 0 1-2.1 2.9"/></>
+                    ) : (
+                      <><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></>
+                    )}
+                  </svg>
                 </button>
               </div>
               {error && <div className="field-error">{error}</div>}
