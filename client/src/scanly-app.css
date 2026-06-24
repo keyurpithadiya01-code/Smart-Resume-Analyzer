@@ -352,12 +352,14 @@
 .split-panel-left {
   padding: 28px;
   border-right: 1px solid rgba(35, 43, 53, 0.8);
+  min-width: 0;
 }
 
 .split-panel-right {
   padding: 28px;
   background: rgba(22, 29, 38, 0.5);
   min-height: 320px;
+  min-width: 0;
 }
 
 .split-panel-right.dark {
