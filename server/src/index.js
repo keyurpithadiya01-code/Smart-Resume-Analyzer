@@ -26,18 +26,33 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 
-const allowedOrigins = process.env.CLIENT_URL 
-  ? process.env.CLIENT_URL.split(',') 
-  : ['http://localhost:5173', 'http://localhost:5174'];
+// Build allowed origins list from CLIENT_URL env (comma-separated)
+const allowedOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+      // Allow requests with no origin (curl, mobile apps, Render health checks)
+      if (!origin) return callback(null, true);
+
+      // Always allow these patterns
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.onrender.com') ||
+        origin.endsWith('.scanlyresume.xyz') ||
+        origin === 'https://scanlyresume.xyz' ||
+        origin === 'http://localhost:5173' ||
+        origin === 'http://localhost:5174'
+      ) {
+        return callback(null, true);
       }
+
+      console.warn(`[CORS] Blocked origin: ${origin}`);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
   })
