@@ -52,12 +52,12 @@ body {
 }
 
 .input {
-  @apply w-full bg-[#0b0f14] border border-[#232b35] rounded-xl px-4 py-2.5 text-[#f0f0ec] placeholder:text-[#6b7785] focus:outline-none focus:border-[#00ffa3] focus:ring-1 focus:ring-[#00ffa3]/30 transition;
+  @apply w-full bg-[#1e2530] border border-[#374151] rounded-xl px-4 py-3 text-[#f0f0ec] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#00ffa3] focus:ring-1 focus:ring-[#00ffa3]/30 transition;
 }
 
 .label {
   font-family: 'IBM Plex Mono', monospace;
-  @apply block text-[11.5px] text-[#6b7785] mb-1.5 font-medium uppercase tracking-wide;
+  @apply block text-[11.5px] text-[#9ca3af] mb-1.5 font-medium uppercase tracking-wide;
 }
 
 .tab-active {

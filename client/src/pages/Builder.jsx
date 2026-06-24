@@ -128,7 +128,7 @@ export default function Builder() {
         }
       />
       
-      <form onSubmit={generate} className="space-y-6">
+      <form onSubmit={generate} className="space-y-10">
         <Reveal>
         <div className="modern-card">
           <h3 className="section-card-title">Template</h3>
@@ -148,85 +148,103 @@ export default function Builder() {
         </Reveal>
 
         <Reveal delay={60}>
-        <div className="modern-card space-y-3">
+        <div className="modern-card space-y-4">
           <h3 className="section-card-title">Personal Info</h3>
-          {['full_name', 'email', 'phone', 'location', 'linkedin', 'portfolio', 'title'].map((key) => (
-            <div key={key}>
-              <label className="label capitalize">{key.replace('_', ' ')}</label>
-              <input
-                className="input"
-                value={personal[key]}
-                onChange={(e) => setPersonal({ ...personal, [key]: e.target.value })}
-                required={key === 'email'}
-              />
-            </div>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {['full_name', 'email', 'phone', 'location', 'linkedin', 'portfolio', 'title'].map((key) => (
+              <div key={key} className="flex flex-col gap-1.5">
+                <label className="label capitalize">{key.replace('_', ' ')}</label>
+                <input
+                  className="input"
+                  value={personal[key]}
+                  onChange={(e) => setPersonal({ ...personal, [key]: e.target.value })}
+                  required={key === 'email'}
+                />
+              </div>
+            ))}
+          </div>
         </div>
         </Reveal>
 
         <Reveal delay={80}>
         <div className="modern-card">
-          <label className="label">Summary</label>
-          <textarea className="input min-h-[80px]" value={summary} onChange={(e) => setSummary(e.target.value)} />
+          <div className="flex flex-col gap-1.5">
+            <label className="label">Summary</label>
+            <textarea className="input min-h-[100px]" value={summary} onChange={(e) => setSummary(e.target.value)} />
+          </div>
         </div>
         </Reveal>
 
         <Reveal delay={100}>
-        <div className="modern-card space-y-3">
+        <div className="modern-card space-y-4">
           <h3 className="section-card-title">Education</h3>
           {education.map((edu, i) => (
-            <div key={i} className="border border-[#232b35] rounded-lg p-3 space-y-2">
-              {['school', 'degree', 'field', 'graduation_date', 'gpa'].map((k) => (
-                <input
-                  key={k}
-                  className="input"
-                  placeholder={k}
-                  value={edu[k]}
-                  onChange={(e) => {
-                    const next = [...education];
-                    next[i] = { ...next[i], [k]: e.target.value };
-                    setEducation(next);
-                  }}
-                />
-              ))}
+            <div key={i} className="border border-[#374151] rounded-xl p-5 bg-[#161d26]/50">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {['school', 'degree', 'field', 'graduation_date', 'gpa'].map((k) => (
+                  <div key={k} className="flex flex-col gap-1.5">
+                    <label className="label capitalize">{k.replace('_', ' ')}</label>
+                    <input
+                      className="input"
+                      placeholder={k}
+                      value={edu[k]}
+                      onChange={(e) => {
+                        const next = [...education];
+                        next[i] = { ...next[i], [k]: e.target.value };
+                        setEducation(next);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
-          <button type="button" className="btn-secondary text-sm" onClick={() => setEducation([...education, { ...emptyEdu }])}>+ Add Education</button>
+          <button type="button" className="btn-secondary text-sm mt-2" onClick={() => setEducation([...education, { ...emptyEdu }])}>+ Add Education</button>
         </div>
         </Reveal>
 
         <Reveal delay={120}>
-        <div className="modern-card space-y-3">
+        <div className="modern-card space-y-4">
           <h3 className="section-card-title">Experience</h3>
           {experience.map((exp, i) => (
-            <div key={i} className="border border-[#232b35] rounded-lg p-3 space-y-2">
-              {['position', 'company', 'start_date', 'end_date'].map((k) => (
-                <input key={k} className="input" placeholder={k} value={exp[k]} onChange={(e) => {
+            <div key={i} className="border border-[#374151] rounded-xl p-5 bg-[#161d26]/50 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {['position', 'company', 'start_date', 'end_date'].map((k) => (
+                  <div key={k} className="flex flex-col gap-1.5">
+                    <label className="label capitalize">{k.replace('_', ' ')}</label>
+                    <input key={k} className="input" placeholder={k} value={exp[k]} onChange={(e) => {
+                      const next = [...experience];
+                      next[i] = { ...next[i], [k]: e.target.value };
+                      setExperience(next);
+                    }} />
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label">Description</label>
+                <textarea className="input min-h-[90px]" placeholder="Description" value={exp.description} onChange={(e) => {
                   const next = [...experience];
-                  next[i] = { ...next[i], [k]: e.target.value };
+                  next[i] = { ...next[i], description: e.target.value };
                   setExperience(next);
                 }} />
-              ))}
-              <textarea className="input" placeholder="Description" value={exp.description} onChange={(e) => {
-                const next = [...experience];
-                next[i] = { ...next[i], description: e.target.value };
-                setExperience(next);
-              }} />
+              </div>
             </div>
           ))}
-          <button type="button" className="btn-secondary text-sm" onClick={() => setExperience([...experience, { ...emptyExp }])}>+ Add Experience</button>
+          <button type="button" className="btn-secondary text-sm mt-2" onClick={() => setExperience([...experience, { ...emptyExp }])}>+ Add Experience</button>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
-        <div className="modern-card space-y-3">
+        <div className="modern-card space-y-4">
           <h3 className="section-card-title">Skills (comma-separated)</h3>
-          {['technical', 'soft', 'tools', 'languages'].map((k) => (
-            <div key={k}>
-              <label className="label capitalize">{k}</label>
-              <input className="input" value={skills[k]} onChange={(e) => setSkills({ ...skills, [k]: e.target.value })} />
-            </div>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {['technical', 'soft', 'tools', 'languages'].map((k) => (
+              <div key={k} className="flex flex-col gap-1.5">
+                <label className="label capitalize">{k}</label>
+                <input className="input" value={skills[k]} onChange={(e) => setSkills({ ...skills, [k]: e.target.value })} />
+              </div>
+            ))}
+          </div>
         </div>
         </Reveal>
 
