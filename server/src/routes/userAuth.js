@@ -125,7 +125,8 @@ router.post('/login', authLimiter, async (req, res) => {
 
 router.get('/me', requireUser, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
+    const userId = req.user.userId || req.user.id || req.user._id;
+    const user = await User.findById(userId).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ user: { id: user._id, phone: user.phone, name: user.name } });
   } catch (err) {

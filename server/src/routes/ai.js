@@ -16,8 +16,9 @@ router.post('/analyze', requireUser, upload.single('resume'), async (req, res) =
     const { jobRole, jobDescription, resumeText: bodyText, useSavedResume } = req.body;
     let resumeText = bodyText;
     
+    const userId = req.user.userId || req.user.id || req.user._id;
     if (useSavedResume === 'true') {
-      const saved = await UserResume.findOne({ userId: req.user.userId });
+      const saved = await UserResume.findOne({ userId });
       if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
       resumeText = await extractTextFromBuffer(saved.data, saved.mimetype, saved.filename);
     } else if (req.file) {
@@ -32,7 +33,7 @@ router.post('/analyze', requireUser, upload.single('resume'), async (req, res) =
 
     // Stamp with authenticated user's ID
     await AiAnalysis.create({
-      userId: req.user.userId,
+      userId,
       modelUsed: out.model_used,
       resumeScore: out.resume_score,
       atsScore: out.ats_score,
@@ -56,8 +57,9 @@ router.post('/parse-to-json', requireUser, upload.single('resume'), async (req, 
     const { useSavedResume } = req.body;
     let fileBuffer, fileMimetype, fileOriginalname;
     
+    const userId = req.user.userId || req.user.id || req.user._id;
     if (useSavedResume === 'true') {
-      const saved = await UserResume.findOne({ userId: req.user.userId });
+      const saved = await UserResume.findOne({ userId });
       if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
       fileBuffer = saved.data;
       fileMimetype = saved.mimetype;
@@ -79,7 +81,8 @@ router.post('/parse-to-json', requireUser, upload.single('resume'), async (req, 
 });
 
 router.get('/stats', requireUser, async (req, res) => {
-  const userObjId = new mongoose.Types.ObjectId(req.user.userId);
+  const userId = req.user.userId || req.user.id || req.user._id;
+  const userObjId = new mongoose.Types.ObjectId(userId);
   const total = await AiAnalysis.countDocuments({ userId: userObjId });
   const avg = await AiAnalysis.aggregate([
     { $match: { userId: userObjId } },

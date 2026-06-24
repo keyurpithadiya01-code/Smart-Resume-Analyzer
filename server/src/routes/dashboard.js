@@ -56,12 +56,14 @@ async function buildUserStats(userId) {
 
 // ── User stats (scoped to the requesting user) ─────────────────────────────
 router.get('/stats', requireUser, async (req, res) => {
-  res.json(await buildUserStats(req.user.userId));
+  const userId = req.user.userId || req.user.id || req.user._id;
+  res.json(await buildUserStats(userId));
 });
 
 // ── User home dashboard (scoped to the requesting user) ───────────────────
 router.get('/home', requireUser, async (req, res) => {
-  const userObjId = new mongoose.Types.ObjectId(req.user.userId);
+  const userId = req.user.userId || req.user.id || req.user._id;
+  const userObjId = new mongoose.Types.ObjectId(userId);
   const userFilter = { userId: userObjId };
 
   const [standardAnalyses, aiAnalyses, totalResumes] = await Promise.all([

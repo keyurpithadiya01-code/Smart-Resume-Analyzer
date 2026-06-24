@@ -17,8 +17,9 @@ router.post('/standard', requireUser, upload.single('resume'), async (req, res) 
     
     let fileBuffer, fileMimetype, fileOriginalname;
     
+    const userId = req.user.userId || req.user.id || req.user._id;
     if (useSavedResume === 'true') {
-      const saved = await UserResume.findOne({ userId: req.user.userId });
+      const saved = await UserResume.findOne({ userId });
       if (!saved) return res.status(400).json({ error: 'No saved resume found in storage' });
       fileBuffer = saved.data;
       fileMimetype = saved.mimetype;
@@ -35,8 +36,7 @@ router.post('/standard', requireUser, upload.single('resume'), async (req, res) 
     const jobRequirements = getRoleInfo(category, role) || { required_skills: [] };
     const result = analyzeResume(rawText, jobRequirements);
 
-    // Stamp every document with the authenticated user's ID
-    const userId = req.user.userId;
+    // (userId already extracted above)
 
     let resumeDoc = null;
     if (result.document_type === 'resume' && result.email) {
