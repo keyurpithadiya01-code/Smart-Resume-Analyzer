@@ -73,6 +73,7 @@ export function AuthProvider({ children }) {
     // Clear any session-level cached data so a new user never sees a prior user's state
     sessionStorage.clear();
     setUser(null);
+    window.location.href = '/';
   }, []);
 
   return (
