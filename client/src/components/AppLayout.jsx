@@ -144,13 +144,13 @@ export default function AppLayout({ children }) {
           {/* Mobile hamburger */}
           <button
             type="button"
-            className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] rounded-lg border border-[#232b35] bg-[#10161d] hover:border-[#00ffa3]/40 transition flex-shrink-0"
+            className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5.5px] rounded-lg border border-[#232b35] bg-[#10161d] hover:border-[#00ffa3]/40 transition flex-shrink-0"
             aria-label="Open navigation"
             onClick={() => setMobileNavOpen(true)}
           >
-            <span className="w-4 h-[2px] bg-[#c9cbc5] rounded-full block" />
-            <span className="w-4 h-[2px] bg-[#c9cbc5] rounded-full block" />
-            <span className="w-3 h-[2px] bg-[#c9cbc5] rounded-full block self-start ml-0.5" />
+            <span className="w-[18px] h-[2px] bg-[#c9cbc5] rounded-full block" />
+            <span className="w-[18px] h-[2px] bg-[#c9cbc5] rounded-full block" />
+            <span className="w-[18px] h-[2px] bg-[#c9cbc5] rounded-full block" />
           </button>
         </div>
       </header>
