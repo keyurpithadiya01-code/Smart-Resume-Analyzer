@@ -125,7 +125,22 @@ export default function Signup() {
 
   // STEP 3
   const handleOtpChange = (index, value) => {
-    const cleanValue = value.replace(/\D/g, '').slice(-1);
+    const digits = value.replace(/\D/g, '');
+    
+    // Handle autofill/paste of multiple digits into a single input
+    if (digits.length > 1) {
+      const newOtp = [...otp];
+      digits.split('').forEach((d, i) => {
+        if (index + i < 6) newOtp[index + i] = d;
+      });
+      setOtp(newOtp);
+      setOtpError('');
+      const nextIndex = Math.min(index + digits.length, 5);
+      setTimeout(() => otpRefs.current[nextIndex]?.focus(), 10);
+      return;
+    }
+
+    const cleanValue = digits.slice(-1);
     if (value && !cleanValue) return;
 
     const newOtp = [...otp];

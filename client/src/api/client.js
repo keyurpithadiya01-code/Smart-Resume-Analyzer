@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// 🔥 THE FIX: Pointing directly to your live Render backend
+// Use VITE_API_URL env var in production, fallback to relative path for local dev (Vite proxy)
+const baseURL = import.meta.env.VITE_API_URL || '/api';
+
 const api = axios.create({
-  baseURL: 'https://smart-resume-analyzer-avad.onrender.com/api'
+  baseURL,
+  timeout: 30000,
 });
 
 const ADMIN_PATHS = ['/dashboard/admin', '/auth/logout'];

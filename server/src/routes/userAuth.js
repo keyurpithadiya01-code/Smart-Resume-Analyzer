@@ -46,6 +46,11 @@ router.post('/send-otp', otpLimiter, async (req, res) => {
       message: 'OTP sent to your email address',
     });
   } catch (err) {
+    console.error('[send-otp] Error:', err.message);
+    // Distinguish email delivery failures from other errors
+    if (err.message && err.message.includes('Email delivery failed')) {
+      return res.status(500).json({ error: 'Could not send OTP email. Please try again or contact support.' });
+    }
     res.status(400).json({ error: err.message });
   }
 });
