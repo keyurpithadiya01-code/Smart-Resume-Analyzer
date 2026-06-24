@@ -124,74 +124,27 @@ export default function AppLayout({ children }) {
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-2 w-64 rounded-2xl bg-[#2a2b2d] border border-[#3e3f42] shadow-2xl z-50 animate-fade-up flex flex-col p-2 text-gray-300 font-medium">
-                    {/* User Info Header */}
-                    <div className="flex items-center gap-3 px-3 py-2 mb-1">
-                      <div className="app-user-avatar !w-10 !h-10 !text-sm flex-shrink-0 ring-2 ring-[#3e3f42] ring-offset-2 ring-offset-[#2a2b2d]">{userInitial(user.name, user.phone)}</div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-white truncate tracking-wide">{user.name || 'Nina Žerak'}</p>
-                        <p className="text-xs text-gray-400 truncate">{user.email || 'nina@zerak.eu'}</p>
+                  <div className="absolute top-full right-0 mt-2 w-[260px] rounded-2xl bg-[#0f151c] border border-[#1e2832] shadow-2xl z-50 animate-fade-up flex flex-col p-3 gap-2">
+                    {/* User profile card (matching mobile design) */}
+                    <div className="mobile-profile-card !mb-0 !bg-[#161d26]">
+                      <div className="mobile-profile-avatar">{userInitial(user.name, user.phone)}</div>
+                      <div className="mobile-profile-info">
+                        <p className="mobile-profile-name">{user.name || 'Scanly User'}</p>
+                        <p className="mobile-profile-role">Scanly Member</p>
                       </div>
                     </div>
-                    
-                    <hr className="border-[#3e3f42] my-1 mx-2" />
 
-                    {/* Menu Items */}
-                    <div className="py-1">
-                      <Link to="/home" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                        Account
-                      </Link>
-                      
-                      <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        Settings
-                      </Link>
-
-                      <Link to="/analyzer" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-                        Analytics
-                      </Link>
-
-                      <Link to="/feedback" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-3 py-2 text-[13px] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Help
-                      </Link>
-                    </div>
-
-                    <hr className="border-[#3e3f42] my-1 mx-2" />
-
-                    {/* Dark mode toggle */}
-                    <div className="py-1">
-                      <button
-                        onClick={() => setIsDarkMode(!isDarkMode)}
-                        className="flex items-center justify-between px-3 py-2 text-[13px] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1 w-[calc(100%-8px)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                          Dark mode
-                        </div>
-                        {/* Toggle Pill */}
-                        <div className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-300 ${isDarkMode ? 'bg-[#7c3aed]' : 'bg-gray-500'}`}>
-                          <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
-                        </div>
-                      </button>
-                    </div>
-
-                    <hr className="border-[#3e3f42] my-1 mx-2" />
-
-                    {/* Logout Button */}
-                    <div className="py-1">
-                      <button
-                        onClick={() => { setShowProfileMenu(false); userLogout(); }}
-                        className="flex items-center gap-3 px-3 py-2 text-[13px] text-[#ef4444] hover:bg-[#3a3b3e] rounded-xl transition-colors mx-1 w-[calc(100%-8px)] text-left"
-                      >
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Logout
-                      </button>
-                    </div>
+                    {/* Logout Button (matching mobile design) */}
+                    <button
+                      type="button"
+                      className="mobile-logout-btn"
+                      onClick={() => { setShowProfileMenu(false); userLogout(); }}
+                    >
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>Log out</span>
+                    </button>
                   </div>
                 )}
               </div>
