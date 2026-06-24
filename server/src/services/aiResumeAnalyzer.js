@@ -32,8 +32,11 @@ async function generateContentWithFallback(genAI, modelNames, prompt, maxRetries
           }
           const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
           await new Promise(r => setTimeout(r, delay));
+        } else if (err.message?.includes('404') || err.status === 404) {
+          console.warn(`[Gemini Fallback] Model ${modelName} not found or unsupported. Skipping to next model...`);
+          break; // Model doesn't exist, try next model immediately
         } else {
-          throw err; // Hard errors (e.g., 400 Bad Request, API key invalid) fail immediately
+          throw err; // Hard errors (e.g., 400 Bad Request, 403 API key invalid) fail immediately
         }
       }
     }
@@ -76,7 +79,7 @@ ${resumeText}`;
     const genAI = new GoogleGenerativeAI(apiKey);
     const { result, modelUsed } = await generateContentWithFallback(
       genAI,
-      ['gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+      ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro'],
       prompt
     );
     const analysis = result.response.text();
@@ -124,7 +127,7 @@ ${resumeText}`;
   const genAI = new GoogleGenerativeAI(apiKey);
   const { result } = await generateContentWithFallback(
     genAI,
-    ['gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+    ['gemini-2.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-pro'],
     prompt
   );
   let text = result.response.text().trim();
