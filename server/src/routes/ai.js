@@ -1,14 +1,16 @@
 import { Router } from 'express';
 import multer from 'multer';
+import mongoose from 'mongoose';
 import { extractTextFromBuffer } from '../services/documentParser.js';
 import { analyzeWithGemini, parseResumeToJson } from '../services/aiResumeAnalyzer.js';
 import AiAnalysis from '../models/AiAnalysis.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { requireUser } from '../middleware/userAuth.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const router = Router();
 
-router.post('/analyze', upload.single('resume'), async (req, res) => {
+router.post('/analyze', requireUser, upload.single('resume'), async (req, res) => {
   try {
     const { jobRole, jobDescription, resumeText: bodyText } = req.body;
     let resumeText = bodyText;
@@ -22,7 +24,9 @@ router.post('/analyze', upload.single('resume'), async (req, res) => {
     });
     if (out.error) return res.status(400).json(out);
 
+    // Stamp with authenticated user's ID
     await AiAnalysis.create({
+      userId: req.user.userId,
       modelUsed: out.model_used,
       resumeScore: out.resume_score,
       atsScore: out.ats_score,
@@ -41,7 +45,7 @@ router.post('/analyze', upload.single('resume'), async (req, res) => {
   }
 });
 
-router.post('/parse-to-json', upload.single('resume'), async (req, res) => {
+router.post('/parse-to-json', requireUser, upload.single('resume'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Resume file is required' });
     const resumeText = await extractTextFromBuffer(req.file.buffer, req.file.mimetype, req.file.originalname);
@@ -53,14 +57,15 @@ router.post('/parse-to-json', upload.single('resume'), async (req, res) => {
   }
 });
 
-
-
-router.get('/stats', async (_req, res) => {
-  const total = await AiAnalysis.countDocuments();
+router.get('/stats', requireUser, async (req, res) => {
+  const userObjId = new mongoose.Types.ObjectId(req.user.userId);
+  const total = await AiAnalysis.countDocuments({ userId: userObjId });
   const avg = await AiAnalysis.aggregate([
+    { $match: { userId: userObjId } },
     { $group: { _id: null, avgScore: { $avg: '$resumeScore' }, avgAts: { $avg: '$atsScore' } } },
   ]);
   const byRole = await AiAnalysis.aggregate([
+    { $match: { userId: userObjId } },
     { $group: { _id: '$jobRole', count: { $sum: 1 }, avgScore: { $avg: '$resumeScore' } } },
     { $sort: { count: -1 } },
     { $limit: 10 },
@@ -73,7 +78,7 @@ router.get('/stats', async (_req, res) => {
   });
 });
 
-router.delete('/stats', requireAdmin, async (req, res) => {
+router.delete('/stats', requireAdmin, async (_req, res) => {
   await AiAnalysis.deleteMany({});
   res.json({ ok: true });
 });

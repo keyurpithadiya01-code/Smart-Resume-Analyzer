@@ -14,7 +14,8 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('userToken');
     const email = localStorage.getItem('userEmail');
     const name = localStorage.getItem('userName') || '';
-    return token && email ? { email, name, token } : null;
+    const id = localStorage.getItem('userId') || '';
+    return token && email ? { id, email, name, token } : null;
   });
 
   const adminLogin = useCallback(async (email, password) => {
@@ -46,7 +47,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('userToken', data.token);
     localStorage.setItem('userEmail', data.user.email);
     localStorage.setItem('userName', data.user.name || '');
-    setUser({ email: data.user.email, name: data.user.name || '', token: data.token });
+    localStorage.setItem('userId', data.user.id || '');
+    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', token: data.token });
     return data;
   }, []);
 
@@ -55,7 +57,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('userToken', data.token);
     localStorage.setItem('userEmail', data.user.email);
     localStorage.setItem('userName', data.user.name || '');
-    setUser({ email: data.user.email, name: data.user.name || '', token: data.token });
+    localStorage.setItem('userId', data.user.id || '');
+    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', token: data.token });
     return data;
   }, []);
 
@@ -68,6 +71,9 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('userToken');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userId');
+    // Clear any session-level cached data so a new user never sees a prior user's state
+    sessionStorage.clear();
     setUser(null);
   }, []);
 

@@ -5,11 +5,12 @@ import { analyzeResume } from '../services/resumeAnalyzer.js';
 import { getRoleInfo } from '../config/staticData.js';
 import Resume from '../models/Resume.js';
 import ResumeAnalysis from '../models/ResumeAnalysis.js';
+import { requireUser } from '../middleware/userAuth.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const router = Router();
 
-router.post('/standard', upload.single('resume'), async (req, res) => {
+router.post('/standard', requireUser, upload.single('resume'), async (req, res) => {
   try {
     const { category, role } = req.body;
     if (!req.file) return res.status(400).json({ error: 'Resume file is required' });
@@ -17,9 +18,13 @@ router.post('/standard', upload.single('resume'), async (req, res) => {
     const jobRequirements = getRoleInfo(category, role) || { required_skills: [] };
     const result = analyzeResume(rawText, jobRequirements);
 
+    // Stamp every document with the authenticated user's ID
+    const userId = req.user.userId;
+
     let resumeDoc = null;
     if (result.document_type === 'resume' && result.email) {
       resumeDoc = await Resume.create({
+        userId,
         name: result.name,
         email: result.email,
         phone: result.phone,
@@ -29,6 +34,7 @@ router.post('/standard', upload.single('resume'), async (req, res) => {
         targetCategory: category || '',
       });
       await ResumeAnalysis.create({
+        userId,
         resumeId: resumeDoc._id,
         atsScore: result.ats_score,
         keywordMatchScore: result.keyword_match?.score,

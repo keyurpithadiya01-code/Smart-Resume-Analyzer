@@ -4,6 +4,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
 import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import PageHeader from '../components/PageHeader';
 import Reveal from '../components/Reveal';
 
@@ -18,14 +19,17 @@ const EMPTY_HOME = {
 };
 
 export default function Home() {
+  const { user } = useAuth();
   const [home, setHome] = useState(null);
   const [scoreFilter, setScoreFilter] = useState('all');
 
   useEffect(() => {
+    // Reset to null so loading spinner shows on user switch
+    setHome(null);
     api.get('/dashboard/home')
       .then(({ data }) => setHome(data))
       .catch(() => setHome(EMPTY_HOME));
-  }, []);
+  }, [user?.id]);
 
   if (!home) {
     return (

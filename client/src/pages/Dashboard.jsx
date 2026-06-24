@@ -6,18 +6,22 @@ import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [stats, setStats] = useState(null);
   const [adminResumes, setAdminResumes] = useState([]);
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
+    // Reset state so stale data doesn't show on user switch
+    setStats(null);
+    setAdminResumes([]);
+    setLogs([]);
     api.get('/dashboard/stats').then(({ data }) => setStats(data));
     if (isAdmin) {
       api.get('/dashboard/admin/resumes').then(({ data }) => setAdminResumes(data));
       api.get('/dashboard/admin/logs').then(({ data }) => setLogs(data));
     }
-  }, [isAdmin]);
+  }, [user?.id, isAdmin]);
 
   async function exportExcel() {
     const { data } = await api.get('/dashboard/admin/export', { responseType: 'blob' });

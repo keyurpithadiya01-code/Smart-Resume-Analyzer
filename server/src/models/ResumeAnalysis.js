@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const resumeAnalysisSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     resumeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Resume' },
     atsScore: { type: Number, default: 0 },
     keywordMatchScore: { type: Number, default: 0 },

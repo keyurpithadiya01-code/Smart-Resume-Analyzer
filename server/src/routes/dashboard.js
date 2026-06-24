@@ -1,16 +1,22 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import ExcelJS from 'exceljs';
 import Resume from '../models/Resume.js';
 import ResumeAnalysis from '../models/ResumeAnalysis.js';
 import AiAnalysis from '../models/AiAnalysis.js';
 import AdminLog from '../models/AdminLog.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { requireUser } from '../middleware/userAuth.js';
 
 const router = Router();
 
-async function buildStats() {
-  const totalResumes = await Resume.countDocuments();
-  const analyses = await ResumeAnalysis.find().lean();
+// ── Per-user stats builder ─────────────────────────────────────────────────
+async function buildUserStats(userId) {
+  const userObjId = new mongoose.Types.ObjectId(userId);
+  const userFilter = { userId: userObjId };
+
+  const totalResumes = await Resume.countDocuments(userFilter);
+  const analyses = await ResumeAnalysis.find(userFilter).lean();
   const avgAts =
     analyses.length > 0
       ? Math.round(analyses.reduce((s, a) => s + (a.atsScore || 0), 0) / analyses.length)
@@ -19,12 +25,13 @@ async function buildStats() {
   const successRate = analyses.length ? Math.round((highPerforming / analyses.length) * 100) : 0;
 
   const byCategory = await Resume.aggregate([
-    { $match: { targetCategory: { $ne: '' } } },
+    { $match: { userId: userObjId, targetCategory: { $ne: '' } } },
     { $group: { _id: '$targetCategory', count: { $sum: 1 } } },
     { $sort: { count: -1 } },
   ]);
 
   const weekly = await ResumeAnalysis.aggregate([
+    { $match: userFilter },
     {
       $group: {
         _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
@@ -47,15 +54,20 @@ async function buildStats() {
   };
 }
 
-router.get('/stats', async (_req, res) => {
-  res.json(await buildStats());
+// ── User stats (scoped to the requesting user) ─────────────────────────────
+router.get('/stats', requireUser, async (req, res) => {
+  res.json(await buildUserStats(req.user.userId));
 });
 
-router.get('/home', async (_req, res) => {
+// ── User home dashboard (scoped to the requesting user) ───────────────────
+router.get('/home', requireUser, async (req, res) => {
+  const userObjId = new mongoose.Types.ObjectId(req.user.userId);
+  const userFilter = { userId: userObjId };
+
   const [standardAnalyses, aiAnalyses, totalResumes] = await Promise.all([
-    ResumeAnalysis.find().sort({ createdAt: -1 }).limit(50).lean(),
-    AiAnalysis.find().sort({ createdAt: -1 }).limit(50).lean(),
-    Resume.countDocuments(),
+    ResumeAnalysis.find(userFilter).sort({ createdAt: -1 }).limit(50).lean(),
+    AiAnalysis.find(userFilter).sort({ createdAt: -1 }).limit(50).lean(),
+    Resume.countDocuments(userFilter),
   ]);
 
   const allScores = [
@@ -91,6 +103,7 @@ router.get('/home', async (_req, res) => {
     .slice(-20);
 
   const dailyTrend = await ResumeAnalysis.aggregate([
+    { $match: userFilter },
     {
       $group: {
         _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
@@ -186,6 +199,7 @@ router.get('/home', async (_req, res) => {
   });
 });
 
+// ── Admin-only routes (unchanged — see all data) ──────────────────────────
 router.get('/admin/resumes', requireAdmin, async (_req, res) => {
   const resumes = await Resume.find().sort({ createdAt: -1 }).limit(200).lean();
   res.json(resumes);
