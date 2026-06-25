@@ -20,14 +20,14 @@ async function fixUser() {
       emailVerified: true,
       role: 'superadmin'
     });
-    console.log(`Created user ${email} with password: Admin@123!`);
+    console.log(`Created user ${email} with password: Keyur@0011`);
   } else {
     console.log(`User ${email} found. Upgrading role and resetting password...`);
     user.role = 'superadmin';
     const hashed = await bcrypt.hash('Admin@123!', 10);
     user.password = hashed;
     await user.save();
-    console.log(`Updated user ${email} to superadmin with password: Admin@123!`);
+    console.log(`Updated user ${email} to superadmin with password: Keyur@0011`);
   }
   process.exit(0);
 }
