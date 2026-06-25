@@ -1,29 +1,33 @@
 import React, { useState } from 'react';
 import { Icon } from './Icons';
+import api from '../api/client';
 
 export default function ResumeViewer({ originalText, optimizedJson, optimizedResumeId, selectedSkills = [], atsScore = 50 }) {
   const [page, setPage] = useState(1);
-  const [activeTab, setActiveTab] = useState(optimizedJson ? 'optimized' : 'original');
+  const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
     if (!optimizedResumeId) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/resume/download/${optimizedResumeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      setDownloading(true);
+      const response = await api.get(`/resume/download/${optimizedResumeId}`, {
+        responseType: 'blob', // Important for receiving binary data
       });
-      if (!res.ok) throw new Error('Download failed');
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'optimized_resume.pdf';
-      document.body.appendChild(a);
-      a.click();
+      
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'optimized_resume.pdf');
+      document.body.appendChild(link);
+      link.click();
+      
+      link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
-      a.remove();
-    } catch (err) {
-      alert('Failed to download resume: ' + err.message);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -39,38 +43,18 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
       <div className="result-section w-full">
         <div className="result-header">
           <div className="result-head-left flex flex-col sm:flex-row gap-4 sm:gap-12">
-          {optimizedJson && (
+          {optimizedJson ? (
             <div className="flex items-center gap-4">
               <p className="result-title display">Optimized Resume</p>
               <div className="result-badge">
                 <Icon name="check" /> ATS-ready
               </div>
             </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <p className="result-title display">Original Resume Text</p>
+            </div>
           )}
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('original')}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                activeTab === 'original'
-                  ? 'bg-[#1e2530] text-[#00ffa3] border border-[#00ffa3]/30'
-                  : 'text-[#8b949e] hover:text-white'
-              }`}
-            >
-              Original
-            </button>
-            <button
-              onClick={() => setActiveTab('optimized')}
-              disabled={!optimizedJson}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                activeTab === 'optimized'
-                  ? 'bg-[#00ffa3] text-[#0f141a]'
-                  : 'text-[#8b949e] disabled:opacity-30'
-              }`}
-            >
-              Optimized
-            </button>
-          </div>
         </div>
 
         {optimizedJson && (
@@ -93,9 +77,9 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
           <div className="pdf-toolbar">
             <div className="pdf-toolbar-left">
               <Icon name="file" width="14" height="14" />
-              <span className="pdf-filename mono">{activeTab === 'optimized' ? 'optimized_resume.pdf' : 'original_text.txt'}</span>
+              <span className="pdf-filename mono">{optimizedJson ? 'optimized_resume.pdf' : 'original_text.txt'}</span>
             </div>
-            {activeTab === 'optimized' && (
+            {optimizedJson && (
               <div className="pdf-zoom">
                 <button className="icon-btn" aria-label="Zoom out"><Icon name="minus" /></button>
                 <span className="zoom-pct">100%</span>
@@ -105,7 +89,7 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
           </div>
 
           <div className="pdf-page-wrap">
-            {activeTab === 'original' ? (
+            {!optimizedJson ? (
               <div className="w-full text-sm text-[#c9cbc5] whitespace-pre-wrap font-mono p-4 text-left">
                 {originalText}
               </div>
@@ -167,7 +151,7 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
             )}
           </div>
 
-          {activeTab === 'optimized' && (
+          {optimizedJson && (
             <div className="pdf-pager">
               <button className="icon-btn" onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Previous page">
                 <Icon name="chevLeft" />
