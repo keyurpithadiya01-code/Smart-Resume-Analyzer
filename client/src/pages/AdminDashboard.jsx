@@ -12,6 +12,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -97,6 +98,11 @@ export default function AdminDashboard() {
     return <div className="p-8 text-[#f0f0ec]">Loading Admin Dashboard...</div>;
   }
 
+  const filteredUsers = users.filter(u => 
+    u.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    u.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="page-container mb-12">
       <PageHeader
@@ -126,59 +132,82 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Metrics Cards */}
       <Reveal>
-        <div className="bento-grid cols-3 mt-4">
-          <div className="stat-tile">
-            <p className="stat-tile-value">{metrics.totalUsers}</p>
-            <p className="stat-tile-label">Total Users</p>
-            <p className="stat-tile-hint">Registered accounts</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+          
+          {/* Metrics Cards */}
+          <div className="bento-grid cols-2 h-full">
+            <div className="stat-tile">
+              <p className="stat-tile-value">{metrics.totalUsers}</p>
+              <p className="stat-tile-label">Total Users</p>
+              <p className="stat-tile-hint">Registered accounts</p>
+            </div>
+            <div className="stat-tile">
+              <p className="stat-tile-value">{metrics.totalResumesAnalyzed}</p>
+              <p className="stat-tile-label">Resumes Analyzed</p>
+              <p className="stat-tile-hint">Across all users</p>
+            </div>
+            <div className="stat-tile col-span-2">
+              <p className="stat-tile-value">{metrics.activeSessions}</p>
+              <p className="stat-tile-label">Active Sessions</p>
+              <p className="stat-tile-hint">System-wide logs</p>
+            </div>
           </div>
-          <div className="stat-tile">
-            <p className="stat-tile-value">{metrics.totalResumesAnalyzed}</p>
-            <p className="stat-tile-label">Resumes Analyzed</p>
-            <p className="stat-tile-hint">Across all users</p>
-          </div>
-          <div className="stat-tile">
-            <p className="stat-tile-value">{metrics.activeSessions}</p>
-            <p className="stat-tile-label">Active Sessions</p>
-            <p className="stat-tile-hint">System-wide logs</p>
+
+          {/* Error Chart */}
+          <div className="modern-card flex flex-col justify-center">
+            <h3 className="section-card-title mb-4">System Error Rate</h3>
+            {chartData.length > 0 ? (
+              <div className="flex-1 w-full min-h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#232b35" />
+                    <XAxis dataKey="name" stroke="#6b7785" fontSize={11} />
+                    <YAxis stroke="#6b7785" fontSize={11} allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#10161d', borderColor: '#232b35', color: '#f0f0ec', borderRadius: 12 }}
+                      itemStyle={{ color: '#00ffa3' }}
+                    />
+                    <Line type="monotone" dataKey="errors" stroke="#ff4d4d" strokeWidth={2} activeDot={{ r: 8 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center flex-1 py-12">
+                <div className="text-center text-[#6b7785] bg-[#161d26]/50 rounded-xl p-6 border border-[#232b35]">
+                  <p className="text-[#00ffa3] mb-2">
+                    <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  </p>
+                  No errors logged recently. System is healthy!
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Reveal>
 
-      {/* Error Chart */}
-      <Reveal delay={80}>
-      <div className="modern-card mt-6">
-        <h3 className="section-card-title">System Error Rate</h3>
-        {chartData.length > 0 ? (
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#232b35" />
-                <XAxis dataKey="name" stroke="#6b7785" />
-                <YAxis stroke="#6b7785" allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#10161d', borderColor: '#232b35', color: '#f0f0ec' }}
-                  itemStyle={{ color: '#00ffa3' }}
-                />
-                <Line type="monotone" dataKey="errors" stroke="#ff4d4d" strokeWidth={2} activeDot={{ r: 8 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div className="text-center text-[#6b7785] py-12">No errors logged recently. System is healthy!</div>
-        )}
-      </div>
-      </Reveal>
-
       {/* User Directory */}
       <Reveal delay={120}>
-      <div className="modern-card mt-6">
-        <h3 className="section-card-title mb-6">User Directory</h3>
-        <div className="overflow-x-auto pb-6">
-          <table className="w-full text-left border-collapse whitespace-nowrap text-[15px]">
-            <thead>
+      <div className="modern-card mt-6 flex flex-col max-h-[600px]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h3 className="section-card-title m-0">User Directory</h3>
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="Search users by email or role..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-[#0b0f14] border border-[#232b35] text-sm rounded-xl pl-10 pr-4 py-2 focus:outline-none focus:border-[#00ffa3] text-[#f0f0ec] w-full sm:w-64 transition-colors"
+            />
+            <svg className="w-4 h-4 text-[#6b7785] absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto overflow-y-auto flex-1 rounded-xl border border-[#232b35]">
+          <table className="w-full text-left border-collapse whitespace-nowrap text-[15px] relative">
+            <thead className="sticky top-0 bg-[#0b0f14] z-10 shadow-sm">
               <tr className="border-b border-[#232b35] text-[#6b7785]">
                 <th className="py-4 pl-6 pr-4 font-medium uppercase tracking-wider text-xs">Email</th>
                 <th className="p-4 font-medium uppercase tracking-wider text-xs">Joined</th>
@@ -188,7 +217,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {filteredUsers.map((u) => (
                 <tr key={u._id} className="border-b border-[#232b35] hover:bg-[#161d26]/60 transition-colors">
                   <td className="py-6 pl-6 pr-4 font-medium">{u.email}</td>
                   <td className="p-4 text-[#c9cbc5]">{new Date(u.createdAt).toLocaleDateString()}</td>
@@ -235,9 +264,11 @@ export default function AdminDashboard() {
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="p-12 text-center text-[#6b7785] text-lg">No users found.</td>
+                  <td colSpan="5" className="p-16 text-center text-[#6b7785] text-lg">
+                    {searchQuery ? 'No users found matching your search.' : 'No users found.'}
+                  </td>
                 </tr>
               )}
             </tbody>
