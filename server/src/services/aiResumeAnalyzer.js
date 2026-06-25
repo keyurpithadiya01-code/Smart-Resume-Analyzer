@@ -215,7 +215,9 @@ export async function optimizeResume(resumeText, selectedSkills, apiKey) {
 
   const prompt = `You are an expert resume writer and ATS optimizer. 
 Your task is to rewrite the provided resume to be highly ATS-friendly, incorporating ONLY the user-selected skills into the experience or summary where appropriate.
-CRITICAL AI RULES: You must NEVER invent work experience, projects, or education. You must only improve phrasing, structure, and ATS keywords. Do NOT hallucinate.
+CRITICAL AI RULES: 
+1. You must NEVER invent work experience, projects, or education. You must only improve phrasing, structure, and ATS keywords. Do NOT hallucinate.
+2. You MUST preserve the ENTIRE resume. Do NOT drop, omit, or summarize away any work experience, projects, or education entries. If the resume has 5 jobs, you must output 5 jobs. If it has 2 pages of content, include all of it. Do not truncate the output.
 
 Selected Skills to incorporate seamlessly: ${selectedSkills.join(', ')}
 
