@@ -29,13 +29,9 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
           return (
             <label 
               key={skill} 
-              className={`flex items-center space-x-4 cursor-pointer p-3.5 rounded-xl border transition-all duration-300 transform group ${
-                isSelected 
-                  ? 'bg-gradient-to-r from-[#00ffa3]/10 to-transparent border-[#00ffa3]/50 shadow-[inset_4px_0_0_#00ffa3]' 
-                  : 'bg-[#1a1d22] border-[#2c333e] hover:border-[#00ffa3]/30 hover:bg-[#1e2530]'
-              }`}
+              className={`flex items-center space-x-3 cursor-pointer py-2 transition-all duration-300 transform group`}
             >
-              <div className={`relative flex items-center justify-center w-5 h-5 rounded-[6px] border-[1.5px] transition-all duration-300 ${
+              <div className={`relative flex items-center justify-center w-5 h-5 rounded-[4px] border-[1.5px] transition-all duration-300 ${
                 isSelected ? 'border-[#00ffa3] bg-[#00ffa3] shadow-[0_0_10px_rgba(0,255,163,0.5)]' : 'border-gray-500 bg-transparent group-hover:border-[#00ffa3]/50'
               }`}>
                 <input 

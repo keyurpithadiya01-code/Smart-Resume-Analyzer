@@ -82,11 +82,11 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
               )}
 
               {sections && Array.isArray(sections) && sections.map((sec, idx) => (
-                <div key={idx} className="mb-6">
-                  <h2 className="text-lg md:text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-1 mb-3 uppercase tracking-wide">
+                <div key={idx} className="mb-8">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2 mb-4 uppercase tracking-wide">
                     {sec.heading}
                   </h2>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {sec.items && Array.isArray(sec.items) && sec.items.map((item, i) => (
                       <div key={i}>
                         {(item.title || item.subtitle || item.date) && (
@@ -103,7 +103,7 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
                           </div>
                         )}
                         {item.description && (
-                          <p className="text-sm md:text-md text-gray-700 whitespace-pre-wrap text-justify mt-1 break-words">
+                          <p className="text-sm md:text-md text-gray-700 whitespace-pre-wrap text-justify mt-2 leading-relaxed break-words">
                             {item.description}
                           </p>
                         )}
