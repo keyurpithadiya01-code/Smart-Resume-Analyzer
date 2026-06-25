@@ -1,21 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import api from '../api/client';
 import PageHeader from '../components/PageHeader';
-import PillTabs from '../components/PillTabs';
 import Reveal from '../components/Reveal';
 
 export default function Feedback() {
-  const [tab, setTab] = useState('form');
-  const [stats, setStats] = useState(null);
   const [form, setForm] = useState({
     rating: 4, usability_score: 4, feature_satisfaction: 4,
     missing_features: '', improvement_suggestions: '', user_experience: '',
   });
   const [msg, setMsg] = useState('');
-
-  useEffect(() => {
-    if (tab === 'stats') api.get('/feedback/stats').then(({ data }) => setStats(data));
-  }, [tab]);
 
   async function submit(e) {
     e.preventDefault();
@@ -32,17 +25,7 @@ export default function Feedback() {
         subtitle="Help us improve Scanly with your experience and suggestions."
       />
 
-      <PillTabs
-        tabs={[
-          { id: 'form', label: 'Submit Feedback' },
-          { id: 'stats', label: 'Statistics' },
-        ]}
-        active={tab}
-        onChange={setTab}
-      />
-
-      {tab === 'form' && (
-        <Reveal>
+      <Reveal>
           <form onSubmit={submit} className="modern-card space-y-5">
             <p className="form-section-label">Rate Your Experience</p>
             {['rating', 'usability_score', 'feature_satisfaction'].map((key) => (
@@ -67,26 +50,7 @@ export default function Feedback() {
             {msg && <p className="text-[#00ffa3] text-sm">{msg}</p>}
             <button type="submit" className="btn-primary">Submit Feedback</button>
           </form>
-        </Reveal>
-      )}
-
-      {tab === 'stats' && stats && (
-        <Reveal>
-          <div className="bento-grid cols-4">
-            {[
-              ['Avg Rating', stats.avg_rating],
-              ['Usability', stats.avg_usability],
-              ['Satisfaction', stats.avg_satisfaction],
-              ['Responses', stats.total_responses],
-            ].map(([l, v]) => (
-              <div key={l} className="stat-tile">
-                <p className="stat-tile-value">{v}</p>
-                <p className="stat-tile-label">{l}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      )}
+      </Reveal>
     </div>
   );
 }
