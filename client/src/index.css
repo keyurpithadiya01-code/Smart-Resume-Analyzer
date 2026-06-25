@@ -563,7 +563,7 @@ body {
   gap: 16px;
   flex-wrap: wrap;
 }
-.result-head-left { display: flex; align-items: center; gap: 12px; }
+.result-head-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .result-title {
   font-size: 17px;
   font-weight: 600;
@@ -588,6 +588,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .btn-download {
   background: var(--scan-green);
@@ -683,13 +684,15 @@ body {
   align-items: center;
   max-height: 640px;
   overflow-y: auto;
+  overflow-x: auto;
 }
-.pdf-page-wrap::-webkit-scrollbar { width: 6px; }
+.pdf-page-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
 .pdf-page-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 .pdf-page {
   background: #ffffff;
   width: 100%;
+  min-width: 420px;
   max-width: 420px;
   aspect-ratio: 8.5 / 11;
   border-radius: 2px;
