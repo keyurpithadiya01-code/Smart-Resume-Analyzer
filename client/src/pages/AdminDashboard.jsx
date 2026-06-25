@@ -105,11 +105,30 @@ export default function AdminDashboard() {
 
   return (
     <div className="page-container mb-12">
-      <PageHeader
-        eyebrow="Scanly · Admin"
-        title="Super Admin Dashboard"
-        subtitle={`Welcome back, ${user?.name || user?.email}`}
-      />
+      {/* Boss-Level Premium Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#161d26] to-[#0a0d14] border border-[#232b35] rounded-3xl p-8 mb-8 shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500 opacity-[0.03] rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500 opacity-[0.02] rounded-full blur-3xl pointer-events-none -ml-20 -mb-20"></div>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+              <span className="text-[11px] font-mono tracking-[0.2em] text-green-400 uppercase font-semibold">System Online</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent mb-2 tracking-tight">Master Control Panel</h1>
+            <p className="text-[#8b97a6] text-sm max-w-xl leading-relaxed">Welcome back, Boss. You have full root access to the entire Scanly ecosystem. Monitor metrics, enforce security protocols, and manage all users across the platform.</p>
+          </div>
+          
+          <div className="hidden md:flex px-6 py-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl flex-col items-end backdrop-blur-md">
+            <span className="text-amber-500/80 text-[10px] font-mono tracking-widest uppercase mb-1">Clearance Level</span>
+            <span className="text-amber-400 font-bold tracking-widest text-lg lg:text-xl">OMEGA / ROOT</span>
+          </div>
+        </div>
+      </div>
       
       {/* Password Reset Modal */}
       {resetModal.isOpen && (
@@ -137,18 +156,18 @@ export default function AdminDashboard() {
           
           {/* Metrics Cards */}
           <div className="bento-grid cols-2 h-full">
-            <div className="stat-tile">
-              <p className="stat-tile-value">{metrics.totalUsers}</p>
+            <div className="stat-tile border-l-2 border-l-amber-500/50 hover:border-l-amber-400 transition-colors bg-gradient-to-br from-[#10161d] to-[#0a0d14]">
+              <p className="stat-tile-value text-amber-400">{metrics.totalUsers}</p>
               <p className="stat-tile-label">Total Users</p>
               <p className="stat-tile-hint">Registered accounts</p>
             </div>
-            <div className="stat-tile">
-              <p className="stat-tile-value">{metrics.totalResumesAnalyzed}</p>
+            <div className="stat-tile border-l-2 border-l-amber-500/50 hover:border-l-amber-400 transition-colors bg-gradient-to-br from-[#10161d] to-[#0a0d14]">
+              <p className="stat-tile-value text-amber-400">{metrics.totalResumesAnalyzed}</p>
               <p className="stat-tile-label">Resumes Analyzed</p>
               <p className="stat-tile-hint">Across all users</p>
             </div>
-            <div className="stat-tile col-span-2">
-              <p className="stat-tile-value">{metrics.activeSessions}</p>
+            <div className="stat-tile col-span-2 border-l-2 border-l-amber-500/50 hover:border-l-amber-400 transition-colors bg-gradient-to-br from-[#10161d] to-[#0a0d14]">
+              <p className="stat-tile-value text-amber-400">{metrics.activeSessions}</p>
               <p className="stat-tile-label">Active Sessions</p>
               <p className="stat-tile-hint">System-wide logs</p>
             </div>
