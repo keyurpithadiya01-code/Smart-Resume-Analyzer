@@ -60,9 +60,9 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
         <button 
           onClick={onGenerate}
           disabled={isGenerating || selectedSkills.length === 0}
-          className="btn-primary w-full mt-6 shadow-[0_0_15px_rgba(0,255,163,0.2)]"
+          className="btn-primary w-full sm:w-auto mt-6"
         >
-          {isGenerating ? 'Injecting Skills & Generating...' : 'Generate Improved Resume →'}
+          {isGenerating ? 'Injecting Skills & Generating...' : 'Generate Optimized Resume →'}
         </button>
       )}
       
@@ -70,9 +70,9 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
          <button 
          onClick={onGenerate}
          disabled={isGenerating || selectedSkills.length === 0}
-         className="w-full mt-6 px-4 py-3 rounded-lg font-bold transition-all duration-300 bg-[#1a1d22] text-[#00ffa3] border border-[#00ffa3] hover:bg-[#00ffa3]/10 disabled:opacity-50"
+         className="btn-secondary w-full sm:w-auto mt-6 border-[#00ffa3] text-[#00ffa3] hover:bg-[#00ffa3]/10"
        >
-         {isGenerating ? 'Regenerating...' : 'Update & Regenerate'}
+         {isGenerating ? 'Regenerating...' : 'Update & Regenerate →'}
        </button>
       )}
     </div>
