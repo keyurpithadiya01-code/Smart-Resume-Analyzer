@@ -7,7 +7,9 @@ import PillTabs from '../components/PillTabs';
 import MetricBar from '../components/MetricBar';
 import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
-import AiResumeOptimizer from '../components/AiResumeOptimizer';
+import SkillSelection from '../components/SkillSelection';
+import ResumeViewer from '../components/ResumeViewer';
+import DownloadResumeButton from '../components/DownloadResumeButton';
 
 function ScanPreview() {
   return (
@@ -44,6 +46,13 @@ export default function Analyzer() {
   const [aiResult, setAiResult] = useState(null);
   const [optimizerResult, setOptimizerResult] = useState(null);
   const [aiStats, setAiStats] = useState(null);
+  
+  // Optimizer state
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [optimizedResumeId, setOptimizedResumeId] = useState(null);
+  const [optimizedJson, setOptimizedJson] = useState(null);
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -134,6 +143,9 @@ export default function Analyzer() {
     setLoading(true);
     setError('');
     setOptimizerResult(null);
+    setOptimizedResumeId(null);
+    setOptimizedJson(null);
+    setSelectedSkills([]);
     try {
       const fd = new FormData();
       if (file) fd.append('resume', file);
@@ -147,6 +159,26 @@ export default function Analyzer() {
       setLoading(false);
     }
   }
+
+  const generateImprovedResume = async () => {
+    if (!optimizerResult) return;
+    setIsGenerating(true);
+    setError('');
+    try {
+      const payload = {
+        resumeText: optimizerResult.resumeText,
+        selectedSkills,
+        atsScore: optimizerResult.atsScore
+      };
+      const { data } = await api.post('/resume/optimize', payload);
+      setOptimizedResumeId(data.optimizedResumeId);
+      setOptimizedJson(data.optimizedResume);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to generate optimized resume');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   async function resetAiStats() {
     await api.delete('/ai/stats');
@@ -166,11 +198,7 @@ export default function Analyzer() {
           { label: 'Resume Score', value: aiResult.score },
           { label: 'ATS Score', value: aiResult.ats_score },
         ]
-      : tab === 'optimizer' && optimizerResult
-        ? [
-            { label: 'Initial ATS Score', value: optimizerResult.atsScore },
-          ]
-        : [];
+      : [];
 
   return (
     <div className="page-container">
@@ -314,28 +342,55 @@ export default function Analyzer() {
             )}
             {!loading && hasResult && (
               <div>
-                <p className="form-section-label" style={{ color: '#00ffa3' }}>Live Results</p>
-                <div className="flex flex-wrap justify-center gap-6 mb-6">
-                  {tab === 'standard' && stdResult && (
-                    <>
-                      <ScoreGauge score={stdResult.ats_score} label="ATS Score" />
-                      <ScoreGauge score={stdResult.keyword_match?.score} label="Keywords" />
-                      <ScoreGauge score={stdResult.format_score} label="Format" />
-                    </>
-                  )}
-                  {tab === 'ai' && aiResult && (
-                    <>
-                      <ScoreGauge score={aiResult.score} label="Resume Score" />
-                      <ScoreGauge score={aiResult.ats_score} label="ATS Score" />
-                    </>
-                  )}
-                  {tab === 'optimizer' && optimizerResult && (
-                    <ScoreGauge score={optimizerResult.atsScore} label="ATS Score" />
-                  )}
-                </div>
-                {activeScores.map((s, i) => (
-                  <MetricBar key={s.label} label={s.label} value={s.value} delay={i * 120} />
-                ))}
+                {tab === 'optimizer' ? (
+                  <div>
+                    <h3 className="text-xl font-bold text-[#00ffa3] mb-4 flex items-center gap-2">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Skill Injection
+                    </h3>
+                    <SkillSelection 
+                      missingSkills={optimizerResult.missingSkills}
+                      selectedSkills={selectedSkills}
+                      setSelectedSkills={setSelectedSkills}
+                      onGenerate={generateImprovedResume}
+                      isGenerating={isGenerating}
+                      hasGenerated={!!optimizedJson}
+                    />
+                    {optimizedJson && (
+                      <div className="mt-6 pt-6 border-t border-[#232b35]">
+                        <p className="text-sm text-[#00ffa3] mb-4 font-medium flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[#00ffa3] animate-ping"></span>
+                          Optimization Complete!
+                        </p>
+                        <DownloadResumeButton optimizedId={optimizedResumeId} />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <p className="form-section-label" style={{ color: '#00ffa3' }}>Live Results</p>
+                    <div className="flex flex-wrap justify-center gap-6 mb-6">
+                      {tab === 'standard' && stdResult && (
+                        <>
+                          <ScoreGauge score={stdResult.ats_score} label="ATS Score" />
+                          <ScoreGauge score={stdResult.keyword_match?.score} label="Keywords" />
+                          <ScoreGauge score={stdResult.format_score} label="Format" />
+                        </>
+                      )}
+                      {tab === 'ai' && aiResult && (
+                        <>
+                          <ScoreGauge score={aiResult.score} label="Resume Score" />
+                          <ScoreGauge score={aiResult.ats_score} label="ATS Score" />
+                        </>
+                      )}
+                    </div>
+                    {activeScores.map((s, i) => (
+                      <MetricBar key={s.label} label={s.label} value={s.value} delay={i * 120} />
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -344,9 +399,10 @@ export default function Analyzer() {
 
       {tab === 'optimizer' && optimizerResult && (
         <Reveal className="mt-10">
-          <AiResumeOptimizer 
-            analysisResult={optimizerResult}
-            setError={setError}
+          <ResumeViewer 
+            originalText={optimizerResult.resumeText} 
+            optimizedJson={optimizedJson} 
+            defaultTab={optimizedJson ? "optimized" : "original"}
           />
         </Reveal>
       )}
