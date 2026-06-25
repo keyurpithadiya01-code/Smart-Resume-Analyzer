@@ -14,7 +14,7 @@ const router = Router();
 // 1. Initial Analysis for Optimizer
 router.post('/optimizer/analyze', requireUser, upload.single('resume'), async (req, res) => {
   try {
-    const { resumeText: bodyText, useSavedResume } = req.body;
+    const { resumeText: bodyText, useSavedResume, category, role } = req.body;
     let resumeText = bodyText;
     
     const userId = req.user.userId || req.user.id || req.user._id;
@@ -31,7 +31,7 @@ router.post('/optimizer/analyze', requireUser, upload.single('resume'), async (r
        return res.status(400).json({ error: 'No resume text provided.' });
     }
 
-    const result = await analyzeForOptimizer(resumeText, process.env.GOOGLE_API_KEY);
+    const result = await analyzeForOptimizer(resumeText, category, role, process.env.GOOGLE_API_KEY);
     
     // Result should be { atsScore: number, missingSkills: string[] }
     res.json({

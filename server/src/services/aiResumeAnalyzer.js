@@ -184,11 +184,17 @@ ${resumeText}`;
   return JSON.parse(text.trim());
 }
 
-export async function analyzeForOptimizer(resumeText, apiKey) {
+export async function analyzeForOptimizer(resumeText, category, role, apiKey) {
   if (!resumeText?.trim()) throw new Error('Resume text is required.');
   if (!apiKey) throw new Error('Google API key is not configured.');
 
+  const roleContext = (category || role) 
+    ? `The user is targeting a role as a ${role ? `"${role}"` : 'professional'} in the ${category ? `"${category}"` : 'relevant'} industry. Based specifically on this target:`
+    : `Based on the resume content generally:`;
+
   const prompt = `You are an expert ATS resume analyst. Analyze the provided resume and return a strict JSON object with an ATS score and a list of missing skills.
+${roleContext}
+Identify up to 10 highly relevant skills that are missing from this resume but are typically required for this specific role and industry.
 Do NOT include any markdown formatting or code blocks (like \`\`\`json), just the raw JSON string.
 The JSON must EXACTLY match this structure:
 {

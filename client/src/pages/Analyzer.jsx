@@ -150,6 +150,8 @@ export default function Analyzer() {
       const fd = new FormData();
       if (file) fd.append('resume', file);
       else if (isSavedResume) fd.append('useSavedResume', 'true');
+      if (category) fd.append('category', category);
+      if (role) fd.append('role', role);
       
       const { data } = await api.post('/resume/optimizer/analyze', fd);
       setOptimizerResult(data);
