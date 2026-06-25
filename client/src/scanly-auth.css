@@ -416,7 +416,9 @@
 .auth-shell .toast {
   position: fixed;
   top: 24px;
+  bottom: auto;
   right: 24px;
+  left: auto;
   background: var(--ink-2);
   border: 1px solid var(--scan-dim);
   border-radius: 10px;
@@ -431,10 +433,23 @@
   transform: translateX(120%);
   transition: transform .35s ease;
   z-index: 200;
+  width: max-content;
+  max-width: 90vw;
 }
 .auth-shell .toast.show { transform: translateX(0); }
 .auth-shell .toast .dotgreen { width: 8px; height: 8px; border-radius: 50%; background: var(--scan); flex-shrink: 0; box-shadow: 0 0 10px var(--scan); }
 
+@media (max-width: 480px) {
+  .auth-shell .toast {
+    top: 20px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+  }
+  .auth-shell .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+}
 /* step transitions */
 .auth-shell .step { display: none; animation: stepIn .4s ease; }
 .auth-shell .step.active { display: block; }
