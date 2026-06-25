@@ -23,6 +23,7 @@ export default function UserDirectoryTable({
   const timeAgo = (dateStr) => {
     if (!dateStr) return 'Never';
     const mins = Math.round((new Date() - new Date(dateStr)) / 60000);
+    if (mins <= 0) return 'Just now';
     if (mins < 60) return `${mins}m ago`;
     if (mins < 1440) return `${Math.round(mins/60)}h ago`;
     return `${Math.round(mins/1440)}d ago`;
