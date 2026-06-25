@@ -171,8 +171,6 @@ export default function AdminDashboard() {
 
       {/* User Directory */}
       <Reveal delay={120}>
-      {/* User Directory */}
-      <Reveal delay={120}>
       <div className="flex flex-col h-[calc(100vh-320px)] min-h-[500px]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-4">
