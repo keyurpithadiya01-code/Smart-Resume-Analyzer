@@ -29,14 +29,14 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
           return (
             <label 
               key={skill} 
-              className={`flex items-center space-x-3 cursor-pointer p-3 rounded-xl border transition-all duration-300 transform ${
+              className={`flex items-center space-x-4 cursor-pointer p-3.5 rounded-xl border transition-all duration-300 transform group ${
                 isSelected 
-                  ? 'bg-[#00ffa3]/10 border-[#00ffa3] shadow-[0_0_15px_rgba(0,255,163,0.2)] scale-[1.02]' 
-                  : 'bg-[#1e2530] border-[#374151] hover:border-[#00ffa3]/50 hover:bg-[#1a212b]'
+                  ? 'bg-gradient-to-r from-[#00ffa3]/10 to-transparent border-[#00ffa3]/50 shadow-[inset_4px_0_0_#00ffa3]' 
+                  : 'bg-[#1a1d22] border-[#2c333e] hover:border-[#00ffa3]/30 hover:bg-[#1e2530]'
               }`}
             >
-              <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 transition-colors duration-300 ${
-                isSelected ? 'border-[#00ffa3] bg-[#00ffa3]' : 'border-gray-500 bg-[#161d26]'
+              <div className={`relative flex items-center justify-center w-5 h-5 rounded-[6px] border-[1.5px] transition-all duration-300 ${
+                isSelected ? 'border-[#00ffa3] bg-[#00ffa3] shadow-[0_0_10px_rgba(0,255,163,0.5)]' : 'border-gray-500 bg-transparent group-hover:border-[#00ffa3]/50'
               }`}>
                 <input 
                   type="checkbox" 
@@ -52,8 +52,8 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <span className={`text-md transition-colors duration-300 font-medium ${
-                isSelected ? 'text-[#00ffa3]' : 'text-gray-200'
+              <span className={`text-[15px] transition-colors duration-300 font-medium ${
+                isSelected ? 'text-[#00ffa3]' : 'text-gray-300 group-hover:text-gray-100'
               }`}>{skill}</span>
             </label>
           );

@@ -17,14 +17,14 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
   return (
     <div className="mt-8 flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* Switcher Tabs */}
-      <div className="flex justify-center mb-4">
-        <div className="bg-[#10161d]/80 p-1.5 rounded-full border border-[#232b35] flex space-x-2 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+      <div className="flex justify-center mb-6">
+        <div className="bg-[#10161d] p-1.5 rounded-full border border-[#232b35] flex relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
           <button
             onClick={() => setActiveTab('original')}
-            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 relative z-10 ${
               activeTab === 'original'
-                ? 'bg-[#1e2530] text-[#00ffa3] shadow-md border border-[#00ffa3]/30'
-                : 'text-[#9ca3af] hover:text-[#f0f0ec] hover:bg-[#1a212b] border border-transparent'
+                ? 'text-[#00ffa3] shadow-[0_4px_12px_rgba(0,255,163,0.15)] bg-[#1e2530] border border-[#00ffa3]/20'
+                : 'text-[#8b949e] hover:text-[#f0f0ec] hover:bg-[#1a212b] border border-transparent'
             }`}
           >
             Original Resume
@@ -33,10 +33,10 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
           <button
             onClick={() => setActiveTab('optimized')}
             disabled={!optimizedJson}
-            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 border ${
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 relative z-10 ${
               activeTab === 'optimized'
-                ? 'bg-[#00ffa3] text-[#0f141a] shadow-[0_0_20px_rgba(0,255,163,0.4)] border-[#00ffa3]'
-                : 'text-[#9ca3af] hover:text-[#f0f0ec] hover:bg-[#1a212b] disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#9ca3af] cursor-not-allowed border-transparent'
+                ? 'bg-[#00ffa3] text-[#0f141a] shadow-[0_4px_15px_rgba(0,255,163,0.3)] border border-[#00ffa3]'
+                : 'text-[#8b949e] hover:text-[#f0f0ec] hover:bg-[#1a212b] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8b949e] cursor-not-allowed border border-transparent'
             }`}
             style={{ cursor: !optimizedJson ? 'not-allowed' : 'pointer' }}
           >
@@ -60,10 +60,10 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
 
         {/* ATS Optimized View (A4 Document) */}
         {activeTab === 'optimized' && optimizedJson && (
-          <div className="w-full h-[700px] overflow-auto bg-[#0a0f16] rounded-lg border border-[#232b35] p-4 md:p-6 custom-scrollbar flex justify-center">
+          <div className="w-full h-[700px] overflow-auto bg-[#0a0f16] rounded-lg border border-[#232b35] p-6 custom-scrollbar flex justify-center">
             
             {/* A4 Document Container */}
-            <div className="bg-white text-black font-sans p-6 md:p-10 shadow-2xl shrink-0" style={{ width: '794px', minHeight: '1123px', maxWidth: '100%' }}>
+            <div className="bg-white text-black font-sans p-10 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shrink-0 rounded-sm border border-gray-200" style={{ width: '794px', minHeight: '1123px', maxWidth: '100%' }}>
               
               {personal_info && (
                 <div className="text-center mb-6">
