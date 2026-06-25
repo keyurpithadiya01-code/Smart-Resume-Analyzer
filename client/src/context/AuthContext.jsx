@@ -16,7 +16,8 @@ export function AuthProvider({ children }) {
     const email = localStorage.getItem('userEmail');
     const name = localStorage.getItem('userName') || '';
     const id = localStorage.getItem('userId') || '';
-    return token && email ? { id, email, name, token } : null;
+    const role = localStorage.getItem('userRole') || 'user';
+    return token && email ? { id, email, name, role, token } : null;
   });
 
   const adminLogin = useCallback(async (email, password) => {
@@ -49,7 +50,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('userEmail', data.user.email);
     localStorage.setItem('userName', data.user.name || '');
     localStorage.setItem('userId', data.user.id || '');
-    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', token: data.token });
+    localStorage.setItem('userRole', data.user.role || 'user');
+    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', role: data.user.role || 'user', token: data.token });
     return data;
   }, []);
 
@@ -59,7 +61,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('userEmail', data.user.email);
     localStorage.setItem('userName', data.user.name || '');
     localStorage.setItem('userId', data.user.id || '');
-    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', token: data.token });
+    localStorage.setItem('userRole', data.user.role || 'user');
+    setUser({ id: data.user.id, email: data.user.email, name: data.user.name || '', role: data.user.role || 'user', token: data.token });
     return data;
   }, []);
 

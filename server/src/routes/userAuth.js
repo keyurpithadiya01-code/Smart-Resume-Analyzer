@@ -86,7 +86,7 @@ router.post('/signup', authLimiter, async (req, res) => {
     const token = signUserToken(user);
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, name: user.name },
+      user: { id: user._id, email: user.email, name: user.name, role: user.role },
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -113,10 +113,15 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    if (process.env.SUPERADMIN_EMAIL && user.email === process.env.SUPERADMIN_EMAIL.toLowerCase().trim() && user.role !== 'superadmin') {
+      user.role = 'superadmin';
+      await user.save();
+    }
+
     const token = signUserToken(user);
     res.json({
       token,
-      user: { id: user._id, email: user.email, name: user.name },
+      user: { id: user._id, email: user.email, name: user.name, role: user.role },
     });
   } catch (err) {
     res.status(400).json({ error: err.message });

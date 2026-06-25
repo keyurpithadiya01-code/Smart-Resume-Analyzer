@@ -18,6 +18,8 @@ import builderRoutes from './routes/builder.js';
 import dashboardRoutes from './routes/dashboard.js';
 import jobsRoutes from './routes/jobs.js';
 import feedbackRoutes from './routes/feedback.js';
+import adminDashboardRoutes from './routes/adminDashboardRoutes.js';
+import ErrorLog from './models/ErrorLog.js';
 
 
 const app = express();
@@ -82,6 +84,7 @@ app.use('/api/builder', builderRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/admin', adminDashboardRoutes);
 
 const clientDist = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDist));
@@ -91,8 +94,18 @@ app.get(/^(?!\/api).*/, (_req, res) => {
   });
 });
 
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   console.error('Unhandled Error:', err);
+  try {
+    await ErrorLog.create({
+      message: err.message || 'Internal Server Error',
+      stack: err.stack,
+      method: req.method,
+      url: req.originalUrl
+    });
+  } catch (e) {
+    console.error('Failed to log error:', e);
+  }
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 

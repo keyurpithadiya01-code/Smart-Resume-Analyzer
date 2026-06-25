@@ -99,6 +99,16 @@ export default function AppLayout({ children }) {
                 <span>{label}</span>
               </NavLink>
             ))}
+            {user?.role === 'superadmin' && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => `app-nav-link-top ${isActive ? 'active' : ''}`}
+                style={{ color: '#00ffa3' }}
+              >
+                <IconDashboard />
+                <span>Admin Panel</span>
+              </NavLink>
+            )}
           </nav>
         </div>
 
@@ -215,6 +225,20 @@ export default function AppLayout({ children }) {
               ))}
             </div>
           ))}
+          {user?.role === 'superadmin' && (
+            <div className="mb-2">
+              <span className="mobile-nav-group-label" style={{ color: '#00ffa3' }}>Admin</span>
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
+                onClick={() => setMobileNavOpen(false)}
+                style={{ color: '#00ffa3' }}
+              >
+                <IconDashboard />
+                <span>Admin Panel</span>
+              </NavLink>
+            </div>
+          )}
         </nav>
 
         {/* ── Drawer footer — profile card + logout (strictly separated) ── */}

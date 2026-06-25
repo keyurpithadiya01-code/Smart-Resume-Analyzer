@@ -2,8 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/PublicLayout';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import SuperAdminRoute from './components/SuperAdminRoute';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
+import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Analyzer from './pages/Analyzer';
@@ -27,6 +29,7 @@ export default function App() {
       <Route path="/jobs" element={<ProtectedRoute><AppLayout><Jobs /></AppLayout></ProtectedRoute>} />
       <Route path="/feedback" element={<ProtectedRoute><AppLayout><Feedback /></AppLayout></ProtectedRoute>} />
       <Route path="/about" element={<ProtectedRoute><AppLayout><About /></AppLayout></ProtectedRoute>} />
+      <Route path="/admin" element={<SuperAdminRoute><AppLayout><AdminDashboard /></AppLayout></SuperAdminRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
