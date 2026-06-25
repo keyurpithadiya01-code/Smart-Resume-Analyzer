@@ -399,14 +399,16 @@
   }
   .directory-controls {
     width: 100%;
-    flex-direction: row;
+    flex-direction: column;
     gap: 12px;
   }
-  .directory-controls > * {
-    flex: 1;
-    min-width: 0; /* allows flex items to shrink properly if needed */
+  .filter-select {
+    width: 100%;
   }
   .search-box {
+    width: 100%;
+  }
+  .search-box input {
     width: 100%;
   }
   .reset-pwd-modal {
