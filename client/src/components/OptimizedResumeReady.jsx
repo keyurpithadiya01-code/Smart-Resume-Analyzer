@@ -1,4 +1,5 @@
 import React from "react";
+import api from '../api/client';
 
 /* ============================================================
    SCANLY — Optimized Resume Ready (result summary card)
@@ -232,16 +233,41 @@ function Icon({ name, ...props }) {
 }
 
 export default function OptimizedResumeReady({
-  beforeScore = 78,
-  afterScore = 84,
-  injectedSkills = [
-    { name: "Docker" },
-    { name: "AWS" },
-  ],
+  optimizedResumeId,
+  selectedSkills = [],
+  atsScore = 50,
   generatedAt = "Just now",
   fileSize = "142 KB",
 }) {
+  const [downloading, setDownloading] = React.useState(false);
+  const beforeScore = atsScore;
+  const afterScore = Math.min(100, beforeScore + selectedSkills.length * 3);
   const delta = afterScore - beforeScore;
+
+  const handleDownload = async () => {
+    if (!optimizedResumeId) return;
+    try {
+      setDownloading(true);
+      const response = await api.get(`/resume/download/${optimizedResumeId}`, {
+        responseType: 'blob', // Important for receiving binary data
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'optimized_resume.pdf');
+      document.body.appendChild(link);
+      link.click();
+      
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="orr-root">
@@ -280,13 +306,13 @@ export default function OptimizedResumeReady({
           </div>
 
           <div className="orr-action-col">
-            <p className="orr-label">Skills injected ({injectedSkills.length})</p>
+            <p className="orr-label">Skills injected ({selectedSkills.length})</p>
             <div className="orr-skill-list">
-              {injectedSkills.map((s) => (
-                <div className="orr-skill-row" key={s.name}>
+              {selectedSkills.map((skill) => (
+                <div className="orr-skill-row" key={skill}>
                   <span className="orr-skill-name">
                     <Icon name="check" />
-                    {s.name}
+                    {skill}
                   </span>
                   <span className="orr-skill-status">Injected</span>
                 </div>
@@ -294,17 +320,14 @@ export default function OptimizedResumeReady({
             </div>
 
             <div className="orr-download">
-              <button className="orr-btn-icon" aria-label="Preview resume">
-                <Icon name="eye" />
-              </button>
-              <button className="orr-btn-download">
+              <button className="orr-btn-download" onClick={handleDownload} disabled={downloading}>
                 <Icon name="download" />
-                Download ATS PDF
+                {downloading ? "Downloading..." : "Download ATS PDF"}
               </button>
             </div>
             <div className="orr-filemeta">
               <Icon name="file" />
-              <span className="mono">resume_optimized.pdf · {fileSize}</span>
+              <span className="mono">resume_optimized.pdf</span>
             </div>
           </div>
         </div>

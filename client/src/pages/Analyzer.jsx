@@ -8,7 +8,7 @@ import MetricBar from '../components/MetricBar';
 import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
 import SkillSelection from '../components/SkillSelection';
-import ResumeViewer from '../components/ResumeViewer';
+import OptimizedResumeReady from '../components/OptimizedResumeReady';
 import DownloadResumeButton from '../components/DownloadResumeButton';
 
 function ScanPreview() {
@@ -392,11 +392,9 @@ export default function Analyzer() {
         </div>
       </Reveal>
 
-      {tab === 'optimizer' && optimizerResult && (
+      {tab === 'optimizer' && optimizerResult && optimizedJson && (
         <Reveal className="mt-10">
-          <ResumeViewer 
-            originalText={optimizerResult.resumeText} 
-            optimizedJson={optimizedJson} 
+          <OptimizedResumeReady 
             optimizedResumeId={optimizedResumeId}
             selectedSkills={selectedSkills}
             atsScore={optimizerResult.atsScore}
