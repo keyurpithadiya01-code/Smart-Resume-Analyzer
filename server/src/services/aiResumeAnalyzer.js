@@ -218,7 +218,7 @@ Your task is to rewrite the provided resume to be highly ATS-friendly, incorpora
 CRITICAL AI RULES: 
 1. You must NEVER invent work experience, projects, or education. You must only improve phrasing, structure, and ATS keywords. Do NOT hallucinate.
 2. You MUST preserve the ENTIRE resume. Do NOT drop, omit, or summarize away any work experience, projects, or education entries. If the resume has 5 jobs, you must output 5 jobs. If it has 2 pages of content, include all of it. Do not truncate the output.
-3. For the SKILLS section, you MUST format the skills into categorized lines (e.g., "Technical: React, Node.js" and "Non-Technical: Leadership"). Each category must be on its own line in the description field.
+3. For the SKILLS section, you MUST format the skills into categorized lines separated by a colon (e.g., "Technical: React, Node.js" and "Non-Technical: Leadership"). Each category must be on its own line in the description field. Do NOT use markdown bolding (like **).
 
 Selected Skills to incorporate seamlessly: ${selectedSkills.join(', ')}
 

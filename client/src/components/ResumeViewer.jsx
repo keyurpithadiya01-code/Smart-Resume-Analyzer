@@ -103,9 +103,24 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
                           </div>
                         )}
                         {item.description && (
-                          <p className="text-sm md:text-md text-gray-700 whitespace-pre-wrap text-justify mt-2 leading-relaxed break-words">
-                            {item.description}
-                          </p>
+                          <div className="text-sm md:text-md text-gray-700 mt-2 leading-relaxed break-words">
+                            {sec.heading && sec.heading.toLowerCase().includes('skill') ? (
+                              item.description.split('\n').map((line, li) => {
+                                const colonIdx = line.indexOf(':');
+                                if (colonIdx > 0 && colonIdx < 40) {
+                                  return (
+                                    <div key={li} className="mb-1">
+                                      <span className="font-bold text-gray-900">{line.substring(0, colonIdx + 1)}</span>
+                                      {line.substring(colonIdx + 1)}
+                                    </div>
+                                  );
+                                }
+                                return <div key={li} className="mb-1">{line}</div>;
+                              })
+                            ) : (
+                              <p className="whitespace-pre-wrap text-justify">{item.description}</p>
+                            )}
+                          </div>
                         )}
                       </div>
                     ))}

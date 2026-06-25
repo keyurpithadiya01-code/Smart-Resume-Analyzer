@@ -84,11 +84,25 @@ export function generateOptimizedPdf(optimizedData, res) {
 
           // Description (Left aligned for bullet points)
           if (item.description) {
-            doc.font('Helvetica').fontSize(10).fillColor('#000000').text(item.description, { 
-              align: 'left',
-              lineGap: 2
-            });
-            doc.moveDown(0.5);
+            if (sec.heading && sec.heading.toLowerCase().includes('skill')) {
+              const lines = item.description.split('\n');
+              lines.forEach(line => {
+                const colonIdx = line.indexOf(':');
+                if (colonIdx > 0 && colonIdx < 40) {
+                  doc.font('Helvetica-Bold').fontSize(10).fillColor('#000000').text(line.substring(0, colonIdx + 1), { continued: true });
+                  doc.font('Helvetica').text(line.substring(colonIdx + 1), { align: 'left', lineGap: 2 });
+                } else {
+                  doc.font('Helvetica').fontSize(10).fillColor('#000000').text(line, { align: 'left', lineGap: 2 });
+                }
+              });
+              doc.moveDown(0.5);
+            } else {
+              doc.font('Helvetica').fontSize(10).fillColor('#000000').text(item.description, { 
+                align: 'left',
+                lineGap: 2
+              });
+              doc.moveDown(0.5);
+            }
           } else {
             doc.moveDown(0.2);
           }
