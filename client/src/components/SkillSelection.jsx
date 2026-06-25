@@ -20,15 +20,8 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
   return (
     <div className="mt-4">
       <p className="text-sm text-gray-400 mt-2 mb-4">
-        We found the following skills missing from your resume that could improve your ATS score.
+        Add skills that you work with to improve your resume & ATS.
       </p>
-      
-      <div className="bg-[#ffb454]/10 border border-[#ffb454]/20 p-3 rounded-lg mb-4">
-        <p className="text-sm text-[#ffb454] font-semibold">
-          ⚠️ Warning: Only select skills that you genuinely possess. 
-          ATS optimization should honestly reflect your capabilities.
-        </p>
-      </div>
 
       <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2 pb-2">
         {missingSkills.map(skill => {
@@ -45,6 +38,12 @@ export default function SkillSelection({ missingSkills, selectedSkills, setSelec
               <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 transition-colors duration-300 ${
                 isSelected ? 'border-[#00ffa3] bg-[#00ffa3]' : 'border-gray-500 bg-[#161d26]'
               }`}>
+                <input 
+                  type="checkbox" 
+                  className="hidden" 
+                  checked={isSelected} 
+                  onChange={() => toggleSkill(skill)} 
+                />
                 {/* Custom Checkmark */}
                 <svg 
                   className={`w-4 h-4 text-[#0f141a] transition-transform duration-300 ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} 

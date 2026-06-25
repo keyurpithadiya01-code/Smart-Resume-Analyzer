@@ -17,14 +17,14 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
   return (
     <div className="mt-8 flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* Switcher Tabs */}
-      <div className="flex justify-center mb-2">
-        <div className="bg-[#1a1d22] p-1 rounded-full border border-[#2c333e] flex space-x-1">
+      <div className="flex justify-center mb-4">
+        <div className="bg-[#10161d]/80 p-1.5 rounded-full border border-[#232b35] flex space-x-2 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm">
           <button
             onClick={() => setActiveTab('original')}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
               activeTab === 'original'
-                ? 'bg-gray-700 text-white shadow-md'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                ? 'bg-[#1e2530] text-[#00ffa3] shadow-md border border-[#00ffa3]/30'
+                : 'text-[#9ca3af] hover:text-[#f0f0ec] hover:bg-[#1a212b] border border-transparent'
             }`}
           >
             Original Resume
@@ -33,14 +33,14 @@ export default function ResumeViewer({ originalText, optimizedJson, defaultTab =
           <button
             onClick={() => setActiveTab('optimized')}
             disabled={!optimizedJson}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
+            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 border ${
               activeTab === 'optimized'
-                ? 'bg-[#00ffa3] text-[#0f141a] shadow-[0_0_15px_rgba(0,255,163,0.3)]'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-400 cursor-not-allowed'
+                ? 'bg-[#00ffa3] text-[#0f141a] shadow-[0_0_20px_rgba(0,255,163,0.4)] border-[#00ffa3]'
+                : 'text-[#9ca3af] hover:text-[#f0f0ec] hover:bg-[#1a212b] disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#9ca3af] cursor-not-allowed border-transparent'
             }`}
             style={{ cursor: !optimizedJson ? 'not-allowed' : 'pointer' }}
           >
-            {optimizedJson && <span className="w-2 h-2 rounded-full bg-[#0f141a] animate-pulse"></span>}
+            {optimizedJson && <span className={`w-2 h-2 rounded-full ${activeTab === 'optimized' ? 'bg-[#0f141a]' : 'bg-[#00ffa3]'} animate-pulse`}></span>}
             ATS Optimized
           </button>
         </div>
