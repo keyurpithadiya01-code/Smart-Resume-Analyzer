@@ -42,6 +42,7 @@ export default function Analyzer() {
   const [videos, setVideos] = useState({ resume: {}, interview: {} });
   const [jobDesc, setJobDesc] = useState('');
   const [aiResult, setAiResult] = useState(null);
+  const [optimizerResult, setOptimizerResult] = useState(null);
   const [aiStats, setAiStats] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -127,13 +128,33 @@ export default function Analyzer() {
     }
   }
 
+  async function runOptimizer(e) {
+    e.preventDefault();
+    if (!file && !savedResumeMeta) return setError('Upload a PDF or DOCX resume');
+    setLoading(true);
+    setError('');
+    setOptimizerResult(null);
+    try {
+      const fd = new FormData();
+      if (file) fd.append('resume', file);
+      else if (isSavedResume) fd.append('useSavedResume', 'true');
+      
+      const { data } = await api.post('/resume/optimizer/analyze', fd);
+      setOptimizerResult(data);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to analyze resume');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function resetAiStats() {
     await api.delete('/ai/stats');
     loadAiStats();
   }
 
   const roleList = category ? Object.keys(roles[category] || {}) : [];
-  const hasResult = tab === 'standard' ? !!stdResult : !!aiResult;
+  const hasResult = tab === 'standard' ? !!stdResult : tab === 'ai' ? !!aiResult : !!optimizerResult;
   const activeScores = tab === 'standard' && stdResult
     ? [
         { label: 'ATS Score', value: stdResult.ats_score },
@@ -145,7 +166,11 @@ export default function Analyzer() {
           { label: 'Resume Score', value: aiResult.score },
           { label: 'ATS Score', value: aiResult.ats_score },
         ]
-      : [];
+      : tab === 'optimizer' && optimizerResult
+        ? [
+            { label: 'Initial ATS Score', value: optimizerResult.atsScore },
+          ]
+        : [];
 
   return (
     <div className="page-container">
@@ -263,11 +288,14 @@ export default function Analyzer() {
               )}
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
-              {tab !== 'optimizer' && (
-                <button type="button" onClick={tab === 'standard' ? runStandard : runAi} disabled={loading} className="btn-primary w-full sm:w-auto">
-                  {loading ? 'Scanning…' : 'Scan my resume →'}
-                </button>
-              )}
+              <button 
+                type="button" 
+                onClick={tab === 'standard' ? runStandard : tab === 'ai' ? runAi : runOptimizer} 
+                disabled={loading} 
+                className="btn-primary w-full sm:w-auto"
+              >
+                {loading ? 'Scanning…' : tab === 'optimizer' ? 'Analyze for Optimization →' : 'Scan my resume →'}
+              </button>
             </div>
           </div>
 
@@ -301,6 +329,9 @@ export default function Analyzer() {
                       <ScoreGauge score={aiResult.ats_score} label="ATS Score" />
                     </>
                   )}
+                  {tab === 'optimizer' && optimizerResult && (
+                    <ScoreGauge score={optimizerResult.atsScore} label="ATS Score" />
+                  )}
                 </div>
                 {activeScores.map((s, i) => (
                   <MetricBar key={s.label} label={s.label} value={s.value} delay={i * 120} />
@@ -311,12 +342,10 @@ export default function Analyzer() {
         </div>
       </Reveal>
 
-      {tab === 'optimizer' && (
+      {tab === 'optimizer' && optimizerResult && (
         <Reveal className="mt-10">
           <AiResumeOptimizer 
-            file={file}
-            isSavedResume={isSavedResume}
-            savedResumeMeta={savedResumeMeta}
+            analysisResult={optimizerResult}
             setError={setError}
           />
         </Reveal>
