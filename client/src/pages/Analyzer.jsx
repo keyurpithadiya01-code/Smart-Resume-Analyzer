@@ -357,16 +357,9 @@ export default function Analyzer() {
                       onGenerate={generateImprovedResume}
                       isGenerating={isGenerating}
                       hasGenerated={!!optimizedJson}
+                      atsScore={optimizerResult.atsScore}
                     />
-                    {optimizedJson && (
-                      <div className="mt-6 pt-6 border-t border-[#232b35]">
-                        <p className="text-sm text-[#00ffa3] mb-4 font-medium flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-[#00ffa3] animate-ping"></span>
-                          Optimization Complete!
-                        </p>
-                        <DownloadResumeButton optimizedId={optimizedResumeId} />
-                      </div>
-                    )}
+                    {/* Download button moved to ResumeViewer UI */}
                   </div>
                 ) : (
                   <>
@@ -402,7 +395,9 @@ export default function Analyzer() {
           <ResumeViewer 
             originalText={optimizerResult.resumeText} 
             optimizedJson={optimizedJson} 
-            defaultTab={optimizedJson ? "optimized" : "original"}
+            optimizedResumeId={optimizedResumeId}
+            selectedSkills={selectedSkills}
+            atsScore={optimizerResult.atsScore}
           />
         </Reveal>
       )}

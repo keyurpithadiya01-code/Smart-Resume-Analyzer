@@ -1,137 +1,226 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Icon } from './Icons';
 
-export default function ResumeViewer({ originalText, optimizedJson, defaultTab = 'optimized' }) {
-  const [activeTab, setActiveTab] = useState(defaultTab);
-  
-  // When optimizedJson becomes available, auto-switch to optimized if we aren't already
-  useEffect(() => {
-    if (optimizedJson) {
-      setActiveTab('optimized');
+export default function ResumeViewer({ originalText, optimizedJson, optimizedResumeId, selectedSkills = [], atsScore = 50 }) {
+  const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState(optimizedJson ? 'optimized' : 'original');
+
+  const handleDownload = async () => {
+    if (!optimizedResumeId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/resume/download/${optimizedResumeId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'optimized_resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err) {
+      alert('Failed to download resume: ' + err.message);
     }
-  }, [optimizedJson]);
+  };
 
   if (!originalText) return null;
+
+  const baseScore = atsScore;
+  const projectedScore = Math.min(100, baseScore + (selectedSkills?.length || 0) * 3);
 
   const { personal_info, sections } = optimizedJson || {};
 
   return (
-    <div className="mt-8 flex flex-col gap-6 w-full max-w-5xl mx-auto">
-      {/* Switcher Tabs */}
-      <div className="flex justify-center mb-6">
-        <div className="bg-[#10161d] p-1.5 rounded-full border border-[#232b35] flex relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
-          <button
-            onClick={() => setActiveTab('original')}
-            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 relative z-10 ${
-              activeTab === 'original'
-                ? 'text-[#00ffa3] shadow-[0_4px_12px_rgba(0,255,163,0.15)] bg-[#1e2530] border border-[#00ffa3]/20'
-                : 'text-[#8b949e] hover:text-[#f0f0ec] hover:bg-[#1a212b] border border-transparent'
-            }`}
-          >
-            Original Resume
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('optimized')}
-            disabled={!optimizedJson}
-            className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 relative z-10 ${
-              activeTab === 'optimized'
-                ? 'bg-[#00ffa3] text-[#0f141a] shadow-[0_4px_15px_rgba(0,255,163,0.3)] border border-[#00ffa3]'
-                : 'text-[#8b949e] hover:text-[#f0f0ec] hover:bg-[#1a212b] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8b949e] cursor-not-allowed border border-transparent'
-            }`}
-            style={{ cursor: !optimizedJson ? 'not-allowed' : 'pointer' }}
-          >
-            {optimizedJson && <span className={`w-2 h-2 rounded-full ${activeTab === 'optimized' ? 'bg-[#0f141a]' : 'bg-[#00ffa3]'} animate-pulse`}></span>}
-            ATS Optimized
-          </button>
-        </div>
-      </div>
-
-      {/* Viewer Container */}
-      <div className="w-full bg-[#161d26] p-4 md:p-6 rounded-xl border border-[#00ffa3]/30 shadow-[0_0_20px_rgba(0,255,163,0.05)] relative flex flex-col">
-        
-        {/* Original Resume View */}
-        {activeTab === 'original' && (
-          <div className="w-full h-[700px] overflow-auto bg-[#0a0f16] rounded-lg border border-[#232b35] p-6 custom-scrollbar">
-            <div className="text-sm text-[#c9cbc5] whitespace-pre-wrap font-mono">
-              {originalText}
+    <div className="scanly-root">
+      <div className="result-section w-full">
+        <div className="result-header">
+          <div className="result-head-left flex flex-col sm:flex-row gap-4 sm:gap-12">
+          {optimizedJson && (
+            <div className="flex items-center gap-4">
+              <p className="result-title display">Optimized Resume</p>
+              <div className="result-badge">
+                <Icon name="check" /> ATS-ready
+              </div>
             </div>
+          )}
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('original')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeTab === 'original'
+                  ? 'bg-[#1e2530] text-[#00ffa3] border border-[#00ffa3]/30'
+                  : 'text-[#8b949e] hover:text-white'
+              }`}
+            >
+              Original
+            </button>
+            <button
+              onClick={() => setActiveTab('optimized')}
+              disabled={!optimizedJson}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeTab === 'optimized'
+                  ? 'bg-[#00ffa3] text-[#0f141a]'
+                  : 'text-[#8b949e] disabled:opacity-30'
+              }`}
+            >
+              Optimized
+            </button>
+          </div>
+        </div>
+
+        {optimizedJson && (
+          <div className="download-bar">
+            <button className="btn-secondary" onClick={() => window.open(window.URL.createObjectURL(new Blob([originalText])), '_blank')}>
+              <Icon name="eye" />
+              Preview Text
+            </button>
+            <button className="btn-download" onClick={handleDownload}>
+              <Icon name="download" />
+              Download ATS PDF
+            </button>
           </div>
         )}
+      </div>
 
-        {/* ATS Optimized View (A4 Document) */}
-        {activeTab === 'optimized' && optimizedJson && (
-          <div className="w-full h-[700px] overflow-auto bg-[#0a0f16] rounded-lg border border-[#232b35] p-6 custom-scrollbar flex justify-center">
-            
-            {/* A4 Document Container */}
-            <div className="bg-white text-black font-sans p-10 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] shrink-0 rounded-sm border border-gray-200" style={{ width: '794px', minHeight: '1123px', maxWidth: '100%' }}>
-              
-              {personal_info && (
-                <div className="text-center mb-6">
-                  <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-wider text-gray-900 break-words">{personal_info.full_name}</h1>
-                  <div className="text-xs md:text-sm text-gray-600 mt-2 flex flex-wrap justify-center gap-2">
-                    {personal_info.email && <span>{personal_info.email}</span>}
-                    {personal_info.phone && <span className="hidden md:inline">|</span>}
-                    {personal_info.phone && <span>{personal_info.phone}</span>}
-                    {personal_info.location && <span className="hidden md:inline">|</span>}
-                    {personal_info.location && <span>{personal_info.location}</span>}
-                    {personal_info.linkedin && <span className="hidden md:inline">|</span>}
-                    {personal_info.linkedin && <span>{personal_info.linkedin}</span>}
-                  </div>
-                  {personal_info.title && <p className="text-md md:text-lg font-medium text-gray-800 mt-1">{personal_info.title}</p>}
-                </div>
-              )}
+      <div className="result-grid">
+        {/* Document Frame */}
+        <div className="pdf-frame">
+          <div className="pdf-toolbar">
+            <div className="pdf-toolbar-left">
+              <Icon name="file" width="14" height="14" />
+              <span className="pdf-filename mono">{activeTab === 'optimized' ? 'optimized_resume.pdf' : 'original_text.txt'}</span>
+            </div>
+            {activeTab === 'optimized' && (
+              <div className="pdf-zoom">
+                <button className="icon-btn" aria-label="Zoom out"><Icon name="minus" /></button>
+                <span className="zoom-pct">100%</span>
+                <button className="icon-btn" aria-label="Zoom in"><Icon name="plus" /></button>
+              </div>
+            )}
+          </div>
 
-              {sections && Array.isArray(sections) && sections.map((sec, idx) => (
-                <div key={idx} className="mb-8">
-                  <h2 className="text-lg md:text-xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2 mb-4 uppercase tracking-wide">
-                    {sec.heading}
-                  </h2>
-                  <div className="space-y-6">
-                    {sec.items && Array.isArray(sec.items) && sec.items.map((item, i) => (
-                      <div key={i}>
+          <div className="pdf-page-wrap">
+            {activeTab === 'original' ? (
+              <div className="w-full text-sm text-[#c9cbc5] whitespace-pre-wrap font-mono p-4 text-left">
+                {originalText}
+              </div>
+            ) : (
+              <div className="pdf-page">
+                {personal_info && (
+                  <>
+                    <p className="doc-name">{personal_info.full_name}</p>
+                    {personal_info.title && <p className="doc-role">{personal_info.title}</p>}
+                    <div className="doc-contact">
+                      {personal_info.email && <span>{personal_info.email}</span>}
+                      {personal_info.phone && <span>{personal_info.phone}</span>}
+                      {personal_info.location && <span>{personal_info.location}</span>}
+                      {personal_info.linkedin && <span>{personal_info.linkedin}</span>}
+                    </div>
+                  </>
+                )}
+
+                {sections && sections.map((sec, idx) => (
+                  <div key={idx}>
+                    <p className="doc-section-label">{sec.heading}</p>
+                    {sec.items && sec.items.map((item, i) => (
+                      <div key={i} className="mb-2">
                         {(item.title || item.subtitle || item.date) && (
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-1">
-                            <div>
-                              {item.title && <span className="text-md md:text-lg font-bold text-gray-900">{item.title}</span>}
-                              {item.subtitle && <span className="text-sm md:text-md font-semibold text-gray-700 italic sm:ml-2 block sm:inline">at {item.subtitle}</span>}
-                            </div>
-                            {item.date && (
-                              <span className="text-xs md:text-sm text-gray-600 font-bold sm:whitespace-nowrap mt-1 sm:mt-0">
-                                {item.date}
-                              </span>
-                            )}
+                          <div className="flex justify-between items-baseline mb-1">
+                            <p className="doc-line m-0" style={{ fontWeight: 600, color: "#111" }}>
+                              {item.title}
+                              {item.subtitle && <span style={{ fontStyle: 'italic', fontWeight: 400 }}> at {item.subtitle}</span>}
+                            </p>
+                            {item.date && <span style={{ fontSize: '6.5px', color: '#555', fontWeight: 600 }}>{item.date}</span>}
                           </div>
                         )}
+                        
                         {item.description && (
-                          <div className="text-sm md:text-md text-gray-700 mt-2 leading-relaxed break-words">
+                          <div className="doc-line mt-1">
                             {sec.heading && sec.heading.toLowerCase().includes('skill') ? (
                               item.description.split('\n').map((line, li) => {
                                 const colonIdx = line.indexOf(':');
                                 if (colonIdx > 0 && colonIdx < 40) {
                                   return (
-                                    <div key={li} className="mb-1">
-                                      <span className="font-bold text-gray-900">{line.substring(0, colonIdx + 1)}</span>
+                                    <div key={li}>
+                                      <span style={{ fontWeight: 700, color: '#111' }}>{line.substring(0, colonIdx + 1)}</span>
                                       {line.substring(colonIdx + 1)}
                                     </div>
                                   );
                                 }
-                                return <div key={li} className="mb-1">{line}</div>;
+                                return <div key={li}>{line}</div>;
                               })
                             ) : (
-                              <p className="whitespace-pre-wrap text-justify">{item.description}</p>
+                              <div className="whitespace-pre-wrap">{item.description}</div>
                             )}
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
 
+          {activeTab === 'optimized' && (
+            <div className="pdf-pager">
+              <button className="icon-btn" onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Previous page">
+                <Icon name="chevLeft" />
+              </button>
+              <span>Page {page} of 1</span>
+              <button className="icon-btn" onClick={() => setPage((p) => Math.min(1, p + 1))} aria-label="Next page">
+                <Icon name="chevRight" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Diff Rail (Only show when optimized) */}
+        {optimizedJson && (
+          <div>
+            <div className="diff-card">
+              <p className="diff-label">ATS match score</p>
+              <div className="score-row">
+                <div className="score-block">
+                  <div className="score-num before mono">{baseScore}</div>
+                  <div className="score-tag">before</div>
+                </div>
+                <div className="score-arrow"><Icon name="arrowRight" /></div>
+                <div className="score-block">
+                  <div className="score-num after mono">{projectedScore}</div>
+                  <div className="score-tag">after</div>
+                </div>
+              </div>
+              <div className="score-delta">+{projectedScore - baseScore} points from {selectedSkills.length} injected skills</div>
+            </div>
+
+            <div className="diff-card mt-4">
+              <p className="diff-label">Skills injected ({selectedSkills.length})</p>
+              {selectedSkills.length === 0 ? (
+                <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", margin: 0 }}>No skills selected yet.</p>
+              ) : (
+                <div className="injected-list">
+                  {selectedSkills.map((skill, i) => (
+                    <div className="injected-row" key={i}>
+                      <span className="injected-name">
+                        <Icon name="check" />
+                        {skill}
+                      </span>
+                      <span className="injected-where mono">Injected</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
