@@ -104,166 +104,190 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 mb-12 pt-6">
-      <h1 className="text-2xl font-semibold mb-6 text-[#f0f0ec] tracking-tight">Admin Panel</h1>
-        
-      <Reveal>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Metrics Cards */}
-          <div className="bento-grid cols-2 h-full">
-            <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-5 shadow-sm hover:border-[#303e4d] transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-[#161d26] rounded-lg border border-[#232b35]">
-                  <svg className="w-5 h-5 text-[#8b97a6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                </div>
-                <p className="text-sm text-[#6b7785]">Total Users</p>
-              </div>
-              <p className="text-2xl font-bold text-[#f0f0ec]">{metrics.totalUsers}</p>
-              <p className="text-[12px] text-[#6b7785] mt-1">Registered accounts</p>
-            </div>
-            <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-5 shadow-sm hover:border-[#303e4d] transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-[#161d26] rounded-lg border border-[#232b35]">
-                  <svg className="w-5 h-5 text-[#8b97a6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                </div>
-                <p className="text-sm text-[#6b7785]">Resumes Analysed</p>
-              </div>
-              <p className="text-2xl font-bold text-[#f0f0ec]">{metrics.totalResumesAnalyzed}</p>
-              <p className="text-[12px] text-[#6b7785] mt-1">Across all users</p>
-            </div>
-            <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-5 shadow-sm hover:border-[#303e4d] transition-colors col-span-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-[#161d26] rounded-lg border border-[#232b35]">
-                  <svg className="w-5 h-5 text-[#8b97a6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>
-                </div>
-                <p className="text-sm text-[#6b7785]">Active Sessions</p>
-              </div>
-              <p className="text-2xl font-bold text-[#f0f0ec]">{metrics.activeSessions}</p>
-              <p className="text-[12px] text-[#6b7785] mt-1">System-wide logs</p>
+    <div className="page-container mb-12">
+      <PageHeader 
+        title="Admin Control Panel" 
+        subtitle="Manage users, monitor metrics, and view system health."
+        badgeText="Superadmin Access"
+      />
+
+      {/* Password Reset Modal */}
+      {resetModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0d14]/80 backdrop-blur-sm p-4">
+          <div className="modern-card max-w-md w-full animate-fade-in border border-[#00ffa3]/20 shadow-[0_0_40px_-10px_rgba(0,255,163,0.15)] relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00ffa3] to-transparent"></div>
+            <h2 className="text-2xl font-bold text-[#f0f0ec] mb-2">Reset Password</h2>
+            <p className="text-[#8b97a6] mb-6 text-sm">Enter the new password for this user. An email will be sent to them automatically.</p>
+            <input
+              type="text"
+              className="w-full bg-[#161d26] border border-[#232b35] rounded-xl px-4 py-3 text-[#f0f0ec] focus:outline-none focus:border-[#00ffa3]/50 focus:ring-1 focus:ring-[#00ffa3]/50 mb-8 transition-all"
+              placeholder="New password (min 6 chars)"
+              value={resetModal.newPassword}
+              onChange={(e) => setResetModal({ ...resetModal, newPassword: e.target.value })}
+            />
+            <div className="flex gap-4 justify-end">
+              <button 
+                onClick={closeResetModal} 
+                className="px-6 py-2.5 rounded-full font-medium text-[#8b97a6] hover:text-[#f0f0ec] hover:bg-[#161d26] transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmResetPassword} 
+                className="px-6 py-2.5 rounded-full font-medium bg-[#00ffa3] text-[#10161d] hover:bg-[#00cc82] transition-all duration-300 shadow-[0_0_20px_-5px_rgba(0,255,163,0.4)] hover:shadow-[0_0_25px_-5px_rgba(0,255,163,0.6)] transform hover:-translate-y-0.5"
+              >
+                Confirm Reset
+              </button>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Error Chart or Status Banner */}
-          <div className="bg-[#10161d] border border-[#232b35] rounded-xl flex flex-col justify-center shadow-sm overflow-hidden h-full">
-            {chartData.length > 0 ? (
-              <div className="p-5 flex-1 flex flex-col">
-                <h3 className="text-sm font-semibold text-[#f0f0ec] mb-4">System Error Rate</h3>
-                <div className="flex-1 w-full min-h-[150px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#232b35" />
-                      <XAxis dataKey="name" stroke="#6b7785" fontSize={11} />
-                      <YAxis stroke="#6b7785" fontSize={11} allowDecimals={false} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#10161d', borderColor: '#232b35', color: '#f0f0ec', borderRadius: 8 }}
-                        itemStyle={{ color: '#00ffa3' }}
-                      />
-                      <Line type="monotone" dataKey="errors" stroke="#ff4d4d" strokeWidth={2} activeDot={{ r: 8 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            ) : (
-              <div className="p-5 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center shrink-0 border border-green-500/30">
-                  <svg className="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                </div>
-                <p className="text-[14px] text-[#f0f0ec]"><span className="font-semibold">System Error Rate:</span> No errors logged recently. System is healthy!</p>
-              </div>
-            )}
+      <Reveal>
+        <div className="bento-grid cols-3 mb-8">
+          <div className="stat-tile">
+            <p className="stat-tile-value text-[#f0f0ec]">{metrics.totalUsers}</p>
+            <p className="stat-tile-label">Total Users</p>
+            <p className="stat-tile-hint">Registered accounts</p>
+          </div>
+          <div className="stat-tile">
+            <p className="stat-tile-value text-[#f0f0ec]">{metrics.totalResumesAnalyzed}</p>
+            <p className="stat-tile-label">Resumes Analyzed</p>
+            <p className="stat-tile-hint">Across all platforms</p>
+          </div>
+          <div className="stat-tile">
+            <p className="stat-tile-value text-[#f0f0ec]">{metrics.activeSessions}</p>
+            <p className="stat-tile-label">Active Sessions</p>
+            <p className="stat-tile-hint">System-wide logs</p>
           </div>
         </div>
       </Reveal>
 
+      {/* Error Chart */}
+      <Reveal delay={80}>
+        {chartData.length > 0 ? (
+          <div className="modern-card mb-8">
+            <h3 className="section-card-title mb-6">System Error Rate</h3>
+            <div className="h-[250px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#232b35" />
+                  <XAxis dataKey="name" stroke="#8b97a6" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#8b97a6" fontSize={12} allowDecimals={false} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#10161d', borderColor: '#232b35', color: '#f0f0ec', borderRadius: 12, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)' }}
+                    itemStyle={{ color: '#00ffa3' }}
+                  />
+                  <Line type="monotone" dataKey="errors" stroke="#ff4d4d" strokeWidth={3} activeDot={{ r: 8, fill: '#ff4d4d', stroke: '#10161d', strokeWidth: 2 }} dot={{ r: 4, fill: '#10161d', stroke: '#ff4d4d', strokeWidth: 2 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        ) : (
+          <div className="modern-card mb-8 flex items-center gap-4 bg-gradient-to-r from-[#10161d] to-[#10161d]">
+            <div className="w-12 h-12 rounded-full bg-[#00ffa3]/10 flex items-center justify-center shrink-0 border border-[#00ffa3]/20">
+              <svg className="w-6 h-6 text-[#00ffa3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-[#f0f0ec]">System is Healthy</h3>
+              <p className="text-[#8b97a6] text-sm">No errors logged recently.</p>
+            </div>
+          </div>
+        )}
+      </Reveal>
+
       {/* User Directory */}
       <Reveal delay={120}>
-      <div className="flex flex-col min-h-[500px]">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-          <div className="relative flex-1 max-w-sm">
-            <input 
-              type="text" 
-              placeholder="Search users..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#10161d] border border-[#232b35] text-[13px] rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-[#00ffa3] text-[#f0f0ec] w-full transition-colors"
-            />
-            <svg className="w-4 h-4 text-[#6b7785] absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        <div className="modern-card flex flex-col min-h-[500px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h3 className="section-card-title m-0">User Directory</h3>
+              <p className="text-sm text-[#8b97a6] mt-1">Manage user accounts and system access</p>
+            </div>
+            <div className="relative w-full sm:w-72">
+              <input 
+                type="text" 
+                placeholder="Search users by email or role..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-[#0a0d14] border border-[#232b35] text-[14px] rounded-full pl-11 pr-5 py-3 focus:outline-none focus:border-[#00ffa3]/50 focus:ring-1 focus:ring-[#00ffa3]/50 text-[#f0f0ec] w-full transition-all shadow-inner"
+              />
+              <svg className="w-5 h-5 text-[#8b97a6] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
-          <span className="text-[13px] text-[#6b7785]">{filteredUsers.length} Results</span>
-        </div>
-        
-        <div className="overflow-x-auto flex-1 rounded-xl border border-[#232b35] bg-[#10161d] shadow-sm mb-12">
-          <table className="w-full text-left border-collapse whitespace-nowrap text-[14px] relative">
-            <thead className="sticky top-0 bg-[#10161d] z-10 shadow-sm">
-              <tr className="border-b border-[#232b35] text-[#6b7785]">
-                <th className="py-3 pl-6 pr-4 font-semibold uppercase tracking-wider text-[11px]">Email</th>
-                <th className="p-3 font-semibold uppercase tracking-wider text-[11px]">Joined</th>
-                <th className="p-3 font-semibold uppercase tracking-wider text-[11px]">Status</th>
-                <th className="p-3 font-semibold uppercase tracking-wider text-[11px]">Role</th>
-                <th className="py-3 pr-6 pl-4 font-semibold uppercase tracking-wider text-[11px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => (
-                <tr key={u._id} className="border-b border-[#232b35] hover:bg-[#161d26]/40 transition-colors">
-                  <td className="py-6 pl-6 pr-4 font-medium text-[#f0f0ec]">{u.email}</td>
-                  <td className="py-6 px-4 text-[#8b97a6]">{new Date(u.createdAt).toLocaleDateString()}</td>
-                  <td className="py-6 px-4">
-                    {u.isBanned ? (
-                      <span className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-red-500/10 text-red-500 border border-red-500/20">Banned</span>
-                    ) : (
-                      <span className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-green-500/10 text-green-500 border border-green-500/20">Active</span>
-                    )}
-                  </td>
-                  <td className="py-6 px-4 capitalize text-[#8b97a6]">{u.role}</td>
-                  <td className="py-6 pr-6 pl-4 flex gap-3 items-center">
-                    <button
-                      onClick={() => handleViewResume(u._id)}
-                      className="px-3 py-1.5 border border-[#232b35] rounded-md text-[13px] font-medium text-[#c9cbc5] hover:text-[#f0f0ec] hover:bg-[#232b35]/50 transition-colors"
-                      title="View Resume"
-                    >
-                      View Resume
-                    </button>
-                    <button
-                      onClick={() => openResetModal(u._id)}
-                      className="px-3 py-1.5 border border-[#232b35] rounded-md text-[13px] font-medium text-[#c9cbc5] hover:text-[#f0f0ec] hover:bg-[#232b35]/50 transition-colors"
-                      title="Reset Password"
-                    >
-                      Reset Password
-                    </button>
-                    <button
-                      onClick={() => handleForceExpire(u._id)}
-                      className="px-3 py-1.5 border border-[#232b35] rounded-md text-[13px] font-medium text-[#c9cbc5] hover:text-yellow-400 hover:border-yellow-400/30 hover:bg-yellow-400/5 transition-colors"
-                      title="Force Expire Sessions"
-                    >
-                      Force Expire
-                    </button>
-                    <button
-                      onClick={() => handleBan(u._id)}
-                      className={`px-3 py-1.5 border rounded-md text-[13px] font-medium transition-colors ${
-                        u.isBanned 
-                          ? 'border-green-500/30 text-green-500 hover:bg-green-500/10' 
-                          : 'border-red-500/30 text-red-500 hover:bg-red-500/10'
-                      }`}
-                    >
-                      {u.isBanned ? 'Unban User' : 'Ban User'}
-                    </button>
-                  </td>
+          
+          <div className="overflow-x-auto overflow-y-auto flex-1 rounded-2xl border border-[#232b35] bg-[#0a0d14]/50 shadow-inner">
+            <table className="w-full text-left border-collapse whitespace-nowrap text-[15px] relative">
+              <thead className="sticky top-0 bg-[#10161d] z-10 shadow-sm">
+                <tr className="border-b border-[#232b35]">
+                  <th className="py-5 pl-8 pr-4 font-semibold text-[#8b97a6] uppercase tracking-wider text-[11px]">Email</th>
+                  <th className="py-5 px-4 font-semibold text-[#8b97a6] uppercase tracking-wider text-[11px]">Joined</th>
+                  <th className="py-5 px-4 font-semibold text-[#8b97a6] uppercase tracking-wider text-[11px]">Status</th>
+                  <th className="py-5 px-4 font-semibold text-[#8b97a6] uppercase tracking-wider text-[11px]">Role</th>
+                  <th className="py-5 pr-8 pl-4 font-semibold text-[#8b97a6] uppercase tracking-wider text-[11px] text-right">Actions</th>
                 </tr>
-              ))}
-              {filteredUsers.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="p-16 text-center text-[#6b7785] text-lg">
-                    {searchQuery ? 'No users found matching your search.' : 'No users found.'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => (
+                  <tr key={u._id} className="border-b border-[#232b35]/50 hover:bg-[#161d26]/80 transition-colors group">
+                    <td className="py-6 pl-8 pr-4 font-medium text-[#f0f0ec]">{u.email}</td>
+                    <td className="py-6 px-4 text-[#8b97a6]">{new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td className="py-6 px-4">
+                      {u.isBanned ? (
+                        <span className="px-3 py-1.5 text-[12px] font-semibold rounded-full bg-red-500/10 text-red-400 border border-red-500/20">Banned</span>
+                      ) : (
+                        <span className="px-3 py-1.5 text-[12px] font-semibold rounded-full bg-[#00ffa3]/10 text-[#00ffa3] border border-[#00ffa3]/20">Active</span>
+                      )}
+                    </td>
+                    <td className="py-6 px-4 capitalize text-[#8b97a6]">{u.role}</td>
+                    <td className="py-6 pr-8 pl-4 flex flex-wrap gap-3 justify-end items-center opacity-80 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleViewResume(u._id)}
+                        className="px-5 py-2.5 rounded-full border border-[#232b35] hover:border-[#00ffa3]/50 text-[#c9cbc5] hover:text-[#00ffa3] bg-[#10161d] hover:bg-[#00ffa3]/5 transition-all duration-300 font-semibold text-[13px] shadow-sm transform hover:-translate-y-0.5"
+                      >
+                        View Resume
+                      </button>
+                      <button
+                        onClick={() => openResetModal(u._id)}
+                        className="px-5 py-2.5 rounded-full border border-[#232b35] hover:border-[#f0f0ec]/50 text-[#c9cbc5] hover:text-white bg-[#10161d] hover:bg-white/5 transition-all duration-300 font-semibold text-[13px] shadow-sm transform hover:-translate-y-0.5"
+                      >
+                        Reset Password
+                      </button>
+                      <button
+                        onClick={() => handleForceExpire(u._id)}
+                        className="px-5 py-2.5 rounded-full border border-[#232b35] hover:border-yellow-400/50 text-[#c9cbc5] hover:text-yellow-400 bg-[#10161d] hover:bg-yellow-400/5 transition-all duration-300 font-semibold text-[13px] shadow-sm transform hover:-translate-y-0.5"
+                      >
+                        Force Expire
+                      </button>
+                      <button
+                        onClick={() => handleBan(u._id)}
+                        className={`px-5 py-2.5 rounded-full border transition-all duration-300 font-semibold text-[13px] bg-[#10161d] shadow-sm transform hover:-translate-y-0.5 ${
+                          u.isBanned 
+                            ? 'border-[#232b35] hover:border-[#00ffa3]/50 text-[#c9cbc5] hover:text-[#00ffa3] hover:bg-[#00ffa3]/5' 
+                            : 'border-[#232b35] hover:border-red-400/50 text-[#c9cbc5] hover:text-red-400 hover:bg-red-400/5'
+                        }`}
+                      >
+                        {u.isBanned ? 'Unban User' : 'Ban User'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredUsers.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="py-16 text-center text-[#8b97a6] text-lg">
+                      <div className="flex flex-col items-center gap-3">
+                        <svg className="w-12 h-12 text-[#232b35]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        {searchQuery ? 'No users found matching your search.' : 'No users found.'}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       </Reveal>
     </div>
   );
