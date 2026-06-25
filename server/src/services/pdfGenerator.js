@@ -1,7 +1,11 @@
 import PDFDocument from 'pdfkit';
 
 export function generateOptimizedPdf(optimizedData, res) {
-  const doc = new PDFDocument({ margin: 50, size: 'A4' });
+  const doc = new PDFDocument({ 
+    margin: 50, 
+    size: 'A4',
+    autoFirstPage: true
+  });
 
   // Pipe the PDF to the response
   doc.pipe(res);
@@ -11,7 +15,12 @@ export function generateOptimizedPdf(optimizedData, res) {
   // --- Header (Personal Info) ---
   if (personal_info) {
     if (personal_info.full_name) {
-      doc.font('Helvetica-Bold').fontSize(20).text(personal_info.full_name, { align: 'center' });
+      doc.font('Helvetica-Bold').fontSize(22).text(personal_info.full_name, { align: 'center' });
+      doc.moveDown(0.2);
+    }
+
+    if (personal_info.title) {
+      doc.font('Helvetica-Bold').fontSize(12).fillColor('#333333').text(personal_info.title, { align: 'center' });
       doc.moveDown(0.2);
     }
 
@@ -22,20 +31,24 @@ export function generateOptimizedPdf(optimizedData, res) {
     if (personal_info.linkedin) contactParts.push(personal_info.linkedin);
 
     if (contactParts.length > 0) {
-      doc.font('Helvetica').fontSize(10).text(contactParts.join(' | '), { align: 'center' });
+      doc.font('Helvetica').fontSize(10).fillColor('#000000').text(contactParts.join('  |  '), { align: 'center' });
       doc.moveDown(0.5);
     }
-    
-    // Draw a line
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-    doc.moveDown(1);
   }
 
   // --- Helper to draw section titles ---
   const drawSectionTitle = (title) => {
-    doc.font('Helvetica-Bold').fontSize(12).text(title.toUpperCase());
+    doc.moveDown(0.5);
+    doc.font('Helvetica-Bold').fontSize(12).fillColor('#000000').text(title.toUpperCase());
     doc.moveDown(0.2);
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    
+    // Draw a strict horizontal line
+    doc.moveTo(doc.page.margins.left, doc.y)
+       .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+       .lineWidth(1)
+       .strokeColor('#000000')
+       .stroke();
+    
     doc.moveDown(0.5);
   };
 
@@ -48,36 +61,39 @@ export function generateOptimizedPdf(optimizedData, res) {
       
       if (sec.items && Array.isArray(sec.items)) {
         sec.items.forEach((item) => {
-          // Title (e.g. Job Title, Degree)
+          
+          // Row 1: Title (Bold) and Date (Right aligned if possible, but PDFKit is easier with lines)
+          // To make it truly ATS friendly and robust in PDFKit without continued bugs:
           if (item.title) {
-            doc.font('Helvetica-Bold').fontSize(11).text(item.title, { continued: !!item.subtitle || !!item.date });
+            doc.font('Helvetica-Bold').fontSize(11).text(item.title);
           }
           
-          // Subtitle (e.g. Company, University)
-          if (item.subtitle) {
-            doc.font('Helvetica').text(item.title ? ` at ${item.subtitle}` : item.subtitle, { align: 'left', continued: !!item.date });
+          // Row 2: Subtitle / Company and Date
+          const subParts = [];
+          if (item.subtitle) subParts.push(item.subtitle);
+          if (item.date) subParts.push(item.date);
+          
+          if (subParts.length > 0) {
+            // Using Helvetica-Oblique for subtitle/date line
+            doc.font('Helvetica-Oblique').fontSize(11).fillColor('#444444').text(subParts.join('  |  '));
           }
 
-          // Date
-          if (item.date) {
-            doc.text(item.title || item.subtitle ? `  |  ${item.date}` : item.date, { align: 'right' });
-          } else if (item.title || item.subtitle) {
-             // Terminate the continued line if there was no date but there was a title/subtitle
-             doc.text(' ');
-          }
-
-          if (item.title || item.subtitle || item.date) {
+          if (item.title || subParts.length > 0) {
             doc.moveDown(0.2);
           }
 
-          // Description
+          // Description (Left aligned for bullet points)
           if (item.description) {
-            doc.font('Helvetica').fontSize(10).text(item.description, { align: 'justify' });
-            doc.moveDown(0.4);
+            doc.font('Helvetica').fontSize(10).fillColor('#000000').text(item.description, { 
+              align: 'left',
+              lineGap: 2
+            });
+            doc.moveDown(0.5);
+          } else {
+            doc.moveDown(0.2);
           }
         });
       }
-      doc.moveDown(0.5);
     });
   }
 
