@@ -21,16 +21,15 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none z-[60] flex flex-col items-center justify-end pb-6 gap-2">
         {toasts.map((toast) => (
           <div 
             key={toast.id} 
-            className="bg-[#161b22] border border-[#30363d] shadow-lg rounded-lg px-4 py-3 text-sm text-[#f0f6fc] flex items-center gap-3 animate-slide-up"
+            className="toast show relative !transform-none !bottom-auto !left-auto"
+            style={{ opacity: 1, pointerEvents: 'auto' }}
           >
-            {toast.type === 'success' && (
-              <span className="w-2 h-2 rounded-full bg-[#00ffa3] shrink-0"></span>
-            )}
-            {toast.message}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>{toast.message}</span>
           </div>
         ))}
       </div>
