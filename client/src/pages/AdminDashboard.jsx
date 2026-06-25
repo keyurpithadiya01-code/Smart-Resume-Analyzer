@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [chartData, setChartData] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [resetModal, setResetModal] = useState({ isOpen: false, userId: null, newPassword: '' });
 
   useEffect(() => {
     async function fetchData() {
@@ -40,20 +41,20 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleResetPassword = async (id) => {
-    const newPassword = window.prompt("Enter the new password you want to set for this user:");
-    if (!newPassword) return; // user cancelled or entered empty string
-    
+  const openResetModal = (id) => setResetModal({ isOpen: true, userId: id, newPassword: '' });
+  const closeResetModal = () => setResetModal({ isOpen: false, userId: null, newPassword: '' });
+
+  const confirmResetPassword = async () => {
+    const { userId, newPassword } = resetModal;
     if (newPassword.length < 6) {
       alert("Password must be at least 6 characters.");
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to reset the password to "${newPassword}"?`)) return;
-
     try {
-      const res = await api.post(`/admin/users/${id}/reset-password`, { newPassword });
+      const res = await api.post(`/admin/users/${userId}/reset-password`, { newPassword });
       alert(res.data.message);
+      closeResetModal();
     } catch (err) {
       alert('Error: ' + (err.response?.data?.error || err.message));
     }
@@ -95,14 +96,36 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="p-4 sm:p-8 space-y-8 animate-fade-in text-[#f0f0ec]">
-      <div className="mb-6">
+    <div className="w-full min-h-screen p-4 sm:p-8 md:p-12 lg:p-16 space-y-12 animate-fade-in text-[#f0f0ec]">
+      
+      {/* Password Reset Modal */}
+      {resetModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#10161d] border border-[#232b35] rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in">
+            <h2 className="text-2xl font-bold text-[#f0f0ec] mb-2">Reset Password</h2>
+            <p className="text-[#6b7785] mb-6 text-sm">Enter the new password for this user. An email will be sent to them automatically.</p>
+            <input
+              type="text"
+              className="w-full bg-[#0b0f14] border border-[#232b35] rounded-xl px-4 py-3 text-[#f0f0ec] focus:outline-none focus:border-[#00ffa3] mb-8 transition-colors"
+              placeholder="New password (min 6 chars)"
+              value={resetModal.newPassword}
+              onChange={(e) => setResetModal({ ...resetModal, newPassword: e.target.value })}
+            />
+            <div className="flex gap-4 justify-end">
+              <button onClick={closeResetModal} className="px-5 py-2.5 rounded-xl font-medium text-[#6b7785] hover:text-[#f0f0ec] hover:bg-[#161d26] transition-all">Cancel</button>
+              <button onClick={confirmResetPassword} className="px-5 py-2.5 rounded-xl font-medium bg-[#00ffa3] text-[#10161d] hover:bg-[#00cc82] transition-all transform hover:-translate-y-0.5 shadow-lg shadow-[#00ffa3]/20">Confirm Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Super Admin Dashboard</h1>
         <p className="text-[#6b7785]">Welcome back, {user?.name || user?.email}</p>
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
         <div className="relative overflow-hidden bg-gradient-to-b from-[#161d26] to-[#10161d] border border-[#232b35] hover:border-[#00ffa3]/30 rounded-2xl p-6 shadow-xl transition-all duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ffa3] opacity-[0.03] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
           <h3 className="text-[#6b7785] text-xs font-semibold uppercase tracking-widest mb-3">Total Users</h3>
@@ -172,37 +195,34 @@ export default function AdminDashboard() {
                     )}
                   </td>
                   <td className="p-4 capitalize">{u.role}</td>
-                  <td className="p-4 flex gap-4 justify-end items-center">
+                  <td className="p-4 flex flex-wrap gap-3 justify-end items-center">
                     <button
                       onClick={() => handleViewResume(u._id)}
-                      className="text-[#00ffa3] hover:underline text-sm font-medium transition-colors"
+                      className="px-4 py-2 bg-[#1e2832]/50 hover:bg-[#00ffa3] hover:text-[#10161d] text-[#00ffa3] border border-[#00ffa3]/20 rounded-lg shadow-sm transition-all duration-300 transform hover:-translate-y-1 text-sm font-medium"
                       title="View Resume"
                     >
                       View
                     </button>
-                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
-                      onClick={() => handleResetPassword(u._id)}
-                      className="text-[#f0f0ec] hover:text-[#00ffa3] text-sm transition-colors"
+                      onClick={() => openResetModal(u._id)}
+                      className="px-4 py-2 bg-[#1e2832]/50 hover:bg-[#f0f0ec] hover:text-[#10161d] text-[#f0f0ec] border border-[#232b35] rounded-lg shadow-sm transition-all duration-300 transform hover:-translate-y-1 text-sm font-medium"
                       title="Reset Password"
                     >
                       Reset Pass
                     </button>
-                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
                       onClick={() => handleForceExpire(u._id)}
-                      className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+                      className="px-4 py-2 bg-[#1e2832]/50 hover:bg-yellow-400 hover:text-[#10161d] text-yellow-400 border border-yellow-400/20 rounded-lg shadow-sm transition-all duration-300 transform hover:-translate-y-1 text-sm font-medium"
                       title="Force Expire Sessions"
                     >
                       Expire
                     </button>
-                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
                       onClick={() => handleBan(u._id)}
-                      className={`text-sm font-medium transition-colors ${
+                      className={`px-4 py-2 rounded-lg shadow-sm transition-all duration-300 transform hover:-translate-y-1 text-sm font-medium border bg-[#1e2832]/50 ${
                         u.isBanned 
-                          ? 'text-green-400 hover:text-green-300' 
-                          : 'text-red-400 hover:text-red-300'
+                          ? 'text-green-400 border-green-400/20 hover:bg-green-400 hover:text-[#10161d]' 
+                          : 'text-red-400 border-red-400/20 hover:bg-red-400 hover:text-[#10161d]'
                       }`}
                     >
                       {u.isBanned ? 'Unban' : 'Ban'}
