@@ -279,7 +279,7 @@ export default function OptimizedResumeReady({
             <div className="orr-check"><Icon name="check" /></div>
             <div>
               <p className="orr-title display">Optimized resume ready</p>
-              <p className="orr-sub">Rewritten with ATS-safe formatting and {injectedSkills.length} injected skills.</p>
+              <p className="orr-sub">Rewritten with ATS-safe formatting and {selectedSkills.length} injected skills.</p>
             </div>
           </div>
           <span className="orr-timestamp mono">{generatedAt}</span>
@@ -301,7 +301,7 @@ export default function OptimizedResumeReady({
             </div>
             <div className="orr-delta-row">
               <span className="orr-delta-pill">+{delta}</span>
-              <span className="orr-delta-text">from {injectedSkills.length} injected skills</span>
+              <span className="orr-delta-text">from {selectedSkills.length} injected skills</span>
             </div>
           </div>
 
