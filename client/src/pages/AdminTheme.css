@@ -37,9 +37,8 @@
   *{ box-sizing: border-box; margin:0; padding:0; }
   html,body{ height:100%; }
   .app{
-    display:grid; 
-    grid-template-columns: 232px 1fr; 
-    min-height:100vh;
+    display: block; 
+    min-height: 100vh;
     padding: 24px;
   }
 
@@ -375,6 +374,9 @@
 
 @media (max-width: 768px) {
   .app {
+    padding: 0;
+  }
+  .main {
     padding: 12px;
   }
   .stats-row {
