@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['user', 'superadmin'], default: 'user' },
     isBanned: { type: Boolean, default: false },
     tokenVersion: { type: Number, default: 0 },
+    lastLogin: { type: Date },
   },
   { timestamps: true }
 );

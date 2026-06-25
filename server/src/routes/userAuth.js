@@ -81,6 +81,7 @@ router.post('/signup', authLimiter, async (req, res) => {
       password: hashed,
       name: String(name).trim(),
       emailVerified: true,
+      lastLogin: new Date(),
     });
 
     const token = signUserToken(user);
@@ -114,10 +115,15 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     const superEmail = process.env.SUPERADMIN_EMAIL || 'keyurpithadiya01@gmail.com';
+    let needsSave = false;
+    
     if (user.email === superEmail.toLowerCase().trim() && user.role !== 'superadmin') {
       user.role = 'superadmin';
-      await user.save();
+      needsSave = true;
     }
+
+    user.lastLogin = new Date();
+    await user.save();
 
     const token = signUserToken(user);
     res.json({
