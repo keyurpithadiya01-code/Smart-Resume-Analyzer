@@ -7,15 +7,15 @@ export default function SystemHealthPanel({ issues = [] }) {
     <div className="card mb-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-[16px] font-semibold text-white">System health</h2>
-        <div className={`px-3 py-1.5 rounded-full border text-[13px] font-medium flex items-center gap-2 ${
+        <div className={`px-4 py-2 rounded-full border text-[13px] font-medium flex items-center gap-2.5 shadow-lg ${
           isHealthy 
-            ? 'bg-[#00ffa3]/10 border-[#00ffa3]/20 text-[#00ffa3]' 
-            : 'bg-[#ffb454]/10 border-[#ffb454]/20 text-[#ffb454]'
+            ? 'bg-[#00ffa3]/5 border-[#00ffa3]/20 text-[#00ffa3] shadow-[0_0_15px_rgba(0,255,163,0.05)]' 
+            : 'bg-[#ffb454]/5 border-[#ffb454]/20 text-[#ffb454] shadow-[0_0_15px_rgba(255,180,84,0.05)]'
         }`}>
           {isHealthy ? (
-            <span className="w-2 h-2 rounded-full bg-[#00ffa3] scanly-dot"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00ffa3] shadow-[0_0_8px_rgba(0,255,163,0.8)]"></span>
           ) : (
-            <span className="w-2 h-2 rounded-full bg-[#ffb454] animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ffb454] animate-pulse shadow-[0_0_8px_rgba(255,180,84,0.8)]"></span>
           )}
           {isHealthy ? 'All systems operational' : `Degraded — ${issues.length} active issue${issues.length === 1 ? '' : 's'}`}
         </div>

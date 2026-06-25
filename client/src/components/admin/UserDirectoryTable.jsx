@@ -15,25 +15,50 @@ export default function UserDirectoryTable({
     <div className="card overflow-hidden !p-0">
       <div className="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#232b35]">
         <h2 className="text-[16px] font-semibold text-white">User directory</h2>
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <select 
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto bg-[#161d26] border border-[#232b35] text-[#c9cbc5] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#00ffa3] appearance-none cursor-pointer hover:border-[#374151] transition-colors"
-            style={{ WebkitAppearance: 'none', MozAppearance: 'none', minWidth: '140px' }}
-          >
-            <option value="All statuses">All statuses</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Banned">Banned</option>
-          </select>
-          <input 
-            type="text" 
-            placeholder="Search name or email" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="input w-full sm:w-72"
-          />
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          
+          {/* Filter Pill */}
+          <div className="relative group">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#9ca3af] group-hover:text-[#00ffa3] transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full sm:w-auto bg-[#161d26] border border-[#232b35] text-white text-sm font-medium rounded-full pl-10 pr-8 py-2.5 focus:outline-none focus:border-[#00ffa3] appearance-none cursor-pointer hover:border-[#374151] shadow-sm hover:shadow-[0_0_15px_rgba(0,255,163,0.1)] transition-all"
+              style={{ minWidth: '140px' }}
+            >
+              <option value="All statuses">Filters</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Banned">Banned</option>
+            </select>
+            {/* Custom dropdown arrow */}
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#9ca3af]">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Search Pill */}
+          <div className="relative group w-full sm:w-72">
+            <input 
+              type="text" 
+              placeholder="Search" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#161d26] border border-[#232b35] text-white text-sm font-medium rounded-full pl-4 pr-10 py-2.5 focus:outline-none focus:border-[#00ffa3] placeholder:text-[#6b7785] hover:border-[#374151] shadow-sm hover:shadow-[0_0_15px_rgba(0,255,163,0.1)] transition-all"
+            />
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6b7785] group-hover:text-[#00ffa3] transition-colors pointer-events-none">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -70,17 +95,17 @@ export default function UserDirectoryTable({
                 </td>
                 <td className="py-5 px-5 md:px-6 text-[#c9cbc5] font-mono text-xs">{u.lastActive || new Date(u.createdAt).toLocaleDateString()}</td>
                 <td className="py-5 px-5 md:px-6 flex items-center justify-end gap-2 flex-wrap">
-                  <button onClick={() => onViewResume(u)} className="px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[#9ca3af] bg-[#1a2238] border border-[#232b35] rounded-lg hover:border-[#00ffa3]/50 hover:text-[#00ffa3] transition-colors">
+                  <button onClick={() => onViewResume(u)} className="px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-widest text-[#00ffa3] bg-[#00ffa3]/5 border border-[#00ffa3]/30 rounded-full hover:bg-[#00ffa3]/10 hover:shadow-[0_0_15px_rgba(0,255,163,0.15)] transition-all">
                     View Resume
                   </button>
-                  <button onClick={() => onResetPassword(u)} className="px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[#9ca3af] bg-[#1a2238] border border-[#232b35] rounded-lg hover:border-[#ffb454]/50 hover:text-[#ffb454] transition-colors">
-                    Reset Password
+                  <button onClick={() => onResetPassword(u)} className="px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-widest text-[#ffb454] bg-[#ffb454]/5 border border-[#ffb454]/30 rounded-full hover:bg-[#ffb454]/10 hover:shadow-[0_0_15px_rgba(255,180,84,0.15)] transition-all">
+                    Reset Pwd
                   </button>
-                  <button onClick={() => onForceExpire(u)} className="px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[#9ca3af] bg-[#1a2238] border border-[#232b35] rounded-lg hover:border-[#33ffb5]/50 hover:text-[#33ffb5] transition-colors">
-                    Expire Session
+                  <button onClick={() => onForceExpire(u)} className="px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-widest text-[#33ffb5] bg-[#33ffb5]/5 border border-[#33ffb5]/30 rounded-full hover:bg-[#33ffb5]/10 hover:shadow-[0_0_15px_rgba(51,255,181,0.15)] transition-all">
+                    Expire
                   </button>
-                  <button onClick={() => onBanUser(u)} className={`px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider bg-[#1a2238] border border-[#232b35] rounded-lg transition-colors ${u.isBanned ? 'text-[#9ca3af] hover:border-[#00ffa3]/50 hover:text-[#00ffa3]' : 'text-[#ff453a] hover:border-[#ff453a]/50 hover:bg-[#ff453a]/10'}`}>
-                    {u.isBanned ? 'Unban User' : 'Ban User'}
+                  <button onClick={() => onBanUser(u)} className={`px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-widest rounded-full transition-all border ${u.isBanned ? 'text-[#00ffa3] bg-[#00ffa3]/5 border-[#00ffa3]/30 hover:bg-[#00ffa3]/10 hover:shadow-[0_0_15px_rgba(0,255,163,0.15)]' : 'text-[#ff453a] bg-[#ff453a]/5 border-[#ff453a]/30 hover:bg-[#ff453a]/10 hover:shadow-[0_0_15px_rgba(255,69,58,0.15)]'}`}>
+                    {u.isBanned ? 'Unban' : 'Ban User'}
                   </button>
                 </td>
               </tr>
