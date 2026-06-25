@@ -6,7 +6,7 @@ export function generateOptimizedPdf(optimizedData, res) {
   // Pipe the PDF to the response
   doc.pipe(res);
 
-  const { personal_info, summary, experience, projects, education, skills } = optimizedData;
+  const { personal_info, summary, experience, projects, education, skills, certifications, achievements, other_sections } = optimizedData;
 
   // --- Header (Personal Info) ---
   if (personal_info) {
@@ -102,6 +102,42 @@ export function generateOptimizedPdf(optimizedData, res) {
       if (edu.gpa) degreeInfo += ` (GPA: ${edu.gpa})`;
       
       doc.font('Helvetica').fontSize(10).text(degreeInfo);
+      doc.moveDown(0.5);
+    });
+  }
+
+  // --- Certifications ---
+  if (certifications && certifications.length > 0) {
+    drawSectionTitle('Certifications');
+    certifications.forEach((cert) => {
+      doc.font('Helvetica-Bold').fontSize(11).text(cert.name || '', { continued: true });
+      doc.font('Helvetica').text(cert.date ? `  |  ${cert.date}` : '', { align: 'right' });
+      doc.moveDown(0.2);
+      if (cert.issuer) {
+        doc.font('Helvetica').fontSize(10).text(cert.issuer);
+      }
+      doc.moveDown(0.5);
+    });
+  }
+
+  // --- Achievements ---
+  if (achievements && achievements.length > 0) {
+    drawSectionTitle('Achievements');
+    achievements.forEach((ach) => {
+      doc.font('Helvetica').fontSize(10).text(`• ${ach}`);
+      doc.moveDown(0.2);
+    });
+    doc.moveDown(0.5);
+  }
+
+  // --- Other Sections ---
+  if (other_sections && other_sections.length > 0) {
+    other_sections.forEach((sec) => {
+      if (!sec.section_name) return;
+      drawSectionTitle(sec.section_name);
+      if (sec.content) {
+        doc.font('Helvetica').fontSize(10).text(sec.content);
+      }
       doc.moveDown(0.5);
     });
   }

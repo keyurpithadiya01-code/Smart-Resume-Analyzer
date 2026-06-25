@@ -243,7 +243,16 @@ The JSON must EXACTLY match this structure:
     "soft": "",
     "tools": "",
     "languages": ""
-  }
+  },
+  "certifications": [
+    { "name": "", "issuer": "", "date": "" }
+  ],
+  "achievements": [
+    ""
+  ],
+  "other_sections": [
+    { "section_name": "", "content": "" }
+  ]
 }
 
 Resume Text:

@@ -1,7 +1,7 @@
 export default function ResumeComparison({ originalText, optimizedJson }) {
   if (!originalText || !optimizedJson) return null;
 
-  const { personal_info, summary, experience, projects, education, skills } = optimizedJson;
+  const { personal_info, summary, experience, projects, education, skills, certifications, achievements, other_sections } = optimizedJson;
 
   return (
     <div className="mt-8 flex flex-col md:flex-row gap-6">
@@ -101,6 +101,45 @@ export default function ResumeComparison({ originalText, optimizedJson }) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {certifications && certifications.length > 0 && (
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Certifications</h2>
+            <div className="space-y-3">
+              {certifications.map((cert, i) => (
+                <div key={i}>
+                  <div className="flex justify-between items-baseline mb-1">
+                    <h3 className="text-md font-bold text-gray-900">{cert.name}</h3>
+                    <span className="text-sm text-gray-600 font-medium whitespace-nowrap ml-4">{cert.date}</span>
+                  </div>
+                  {cert.issuer && <div className="text-sm text-gray-700">{cert.issuer}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {achievements && achievements.length > 0 && (
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Achievements</h2>
+            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+              {achievements.map((ach, i) => (
+                <li key={i}>{ach}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {other_sections && other_sections.length > 0 && (
+          <div className="space-y-4 mb-4">
+            {other_sections.map((sec, i) => (
+              <div key={i}>
+                <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">{sec.section_name}</h2>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{sec.content}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>
