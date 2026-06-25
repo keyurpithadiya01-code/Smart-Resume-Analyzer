@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   };
 
   const handleResetPassword = async (id) => {
-    if (!window.confirm('Are you sure you want to reset this user\\'s password?')) return;
+    if (!window.confirm("Are you sure you want to reset this user's password?")) return;
     try {
       const res = await api.post(`/admin/users/${id}/reset-password`);
       alert(`Password reset successfully. New temporary password: ${res.data.tempPassword}\n\nPlease copy this and provide it to the user.`);
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   };
 
   const handleForceExpire = async (id) => {
-    if (!window.confirm('Are you sure you want to force expire this user\\'s sessions?')) return;
+    if (!window.confirm("Are you sure you want to force expire this user's sessions?")) return;
     try {
       const res = await api.post(`/admin/users/${id}/force-expire`);
       alert(res.data.message);
