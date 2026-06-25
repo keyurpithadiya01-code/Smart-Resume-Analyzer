@@ -5,6 +5,7 @@ import Resume from '../models/Resume.js';
 import UserResume from '../models/UserResume.js';
 import ErrorLog from '../models/ErrorLog.js';
 import { requireSuperAdmin } from '../middleware/superAdminAuth.js';
+import { sendPasswordResetEmail } from '../services/emailService.js';
 
 const router = Router();
 
@@ -102,7 +103,10 @@ router.post('/users/:id/reset-password', async (req, res) => {
     user.tokenVersion += 1; // Force expire current sessions so they have to login with new password
     await user.save();
 
-    res.json({ message: 'Password reset successful' });
+    // Fire off the email in the background without waiting, so the admin doesn't have to wait
+    sendPasswordResetEmail(user.email, newPassword).catch(e => console.error('Failed to send reset email:', e));
+
+    res.json({ message: 'Password reset successful and email sent' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
