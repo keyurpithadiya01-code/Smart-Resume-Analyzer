@@ -40,7 +40,7 @@ function AdminDashboardContent() {
           api.get('/admin/users'),
         ]);
         
-        const activeCount = Math.floor(Math.random() * 50) + 10;
+        const activeCount = metricsRes.data.activeSessions || 0;
         setMetrics({
           ...metricsRes.data,
           activeSessions: activeCount

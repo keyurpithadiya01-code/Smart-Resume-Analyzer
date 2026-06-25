@@ -17,9 +17,6 @@ export default function SystemHealthPanel({ issues = [] }) {
             {isHealthy ? 'All systems operational' : `Degraded — ${issues.length} active issue${issues.length > 1 ? 's' : ''}`}
           </div>
         </div>
-        <button className="sim-toggle" onClick={() => setSimulatedHealthy(!simulatedHealthy)}>
-          simulate: {isHealthy ? 'degraded state' : 'all operational'}
-        </button>
       </div>
 
       <div className="health-grid">
