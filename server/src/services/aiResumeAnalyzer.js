@@ -183,3 +183,76 @@ ${resumeText}`;
 
   return JSON.parse(text.trim());
 }
+
+export async function analyzeForOptimizer(resumeText, apiKey) {
+  if (!resumeText?.trim()) throw new Error('Resume text is required.');
+  if (!apiKey) throw new Error('Google API key is not configured.');
+
+  const prompt = `You are an expert ATS resume analyst. Analyze the provided resume and return a strict JSON object with an ATS score and a list of missing skills.
+Do NOT include any markdown formatting or code blocks (like \`\`\`json), just the raw JSON string.
+The JSON must EXACTLY match this structure:
+{
+  "atsScore": 0,
+  "missingSkills": ["Skill 1", "Skill 2"]
+}
+
+Resume Text:
+${resumeText}`;
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const { result } = await generateContentWithFallback(genAI, GEMINI_MODELS, prompt);
+  let text = result.response.text().trim();
+  if (text.startsWith('```json')) text = text.replace(/^```json/, '');
+  if (text.startsWith('```')) text = text.replace(/^```/, '');
+  if (text.endsWith('```')) text = text.replace(/```$/, '');
+
+  return JSON.parse(text.trim());
+}
+
+export async function optimizeResume(resumeText, selectedSkills, apiKey) {
+  if (!resumeText?.trim()) throw new Error('Resume text is required.');
+  if (!apiKey) throw new Error('Google API key is not configured.');
+
+  const prompt = `You are an expert resume writer and ATS optimizer. 
+Your task is to rewrite the provided resume to be highly ATS-friendly, incorporating ONLY the user-selected skills into the experience or summary where appropriate.
+CRITICAL AI RULES: You must NEVER invent work experience, projects, or education. You must only improve phrasing, structure, and ATS keywords. Do NOT hallucinate.
+
+Selected Skills to incorporate seamlessly: ${selectedSkills.join(', ')}
+
+Extract and optimize the information into a strict JSON object. 
+Do NOT include any markdown formatting or code blocks (like \`\`\`json), just the raw JSON string.
+The JSON must EXACTLY match this structure:
+{
+  "personal_info": {
+    "full_name": "", "email": "", "phone": "", "location": "", "linkedin": "", "portfolio": "", "title": ""
+  },
+  "summary": "",
+  "experience": [
+    { "position": "", "company": "", "start_date": "", "end_date": "", "description": "" }
+  ],
+  "projects": [
+    { "name": "", "description": "" }
+  ],
+  "education": [
+    { "school": "", "degree": "", "field": "", "graduation_date": "", "gpa": "" }
+  ],
+  "skills": {
+    "technical": "",
+    "soft": "",
+    "tools": "",
+    "languages": ""
+  }
+}
+
+Resume Text:
+${resumeText}`;
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const { result } = await generateContentWithFallback(genAI, GEMINI_MODELS, prompt);
+  let text = result.response.text().trim();
+  if (text.startsWith('```json')) text = text.replace(/^```json/, '');
+  if (text.startsWith('```')) text = text.replace(/^```/, '');
+  if (text.endsWith('```')) text = text.replace(/```$/, '');
+
+  return JSON.parse(text.trim());
+}

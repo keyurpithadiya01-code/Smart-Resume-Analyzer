@@ -19,6 +19,7 @@ import dashboardRoutes from './routes/dashboard.js';
 import jobsRoutes from './routes/jobs.js';
 import feedbackRoutes from './routes/feedback.js';
 import adminDashboardRoutes from './routes/adminDashboardRoutes.js';
+import resumeRoutes from './routes/resume.js';
 import ErrorLog from './models/ErrorLog.js';
 
 
@@ -85,6 +86,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/admin', adminDashboardRoutes);
+app.use('/api/resume', resumeRoutes);
 
 const clientDist = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDist));

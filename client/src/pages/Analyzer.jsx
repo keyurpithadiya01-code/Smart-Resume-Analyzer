@@ -7,6 +7,7 @@ import PillTabs from '../components/PillTabs';
 import MetricBar from '../components/MetricBar';
 import Reveal from '../components/Reveal';
 import { useAuth } from '../context/AuthContext';
+import AiResumeOptimizer from '../components/AiResumeOptimizer';
 
 function ScanPreview() {
   return (
@@ -158,6 +159,7 @@ export default function Analyzer() {
         tabs={[
           { id: 'standard', label: 'Standard Analyzer' },
           { id: 'ai', label: 'AI Analyzer' },
+          { id: 'optimizer', label: 'AI Optimizer' },
         ]}
         active={tab}
         onChange={setTab}
@@ -261,9 +263,11 @@ export default function Analyzer() {
               )}
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
-              <button type="button" onClick={tab === 'standard' ? runStandard : runAi} disabled={loading} className="btn-primary w-full sm:w-auto">
-                {loading ? 'Scanning…' : 'Scan my resume →'}
-              </button>
+              {tab !== 'optimizer' && (
+                <button type="button" onClick={tab === 'standard' ? runStandard : runAi} disabled={loading} className="btn-primary w-full sm:w-auto">
+                  {loading ? 'Scanning…' : 'Scan my resume →'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -306,6 +310,17 @@ export default function Analyzer() {
           </div>
         </div>
       </Reveal>
+
+      {tab === 'optimizer' && (
+        <Reveal className="mt-10">
+          <AiResumeOptimizer 
+            file={file}
+            isSavedResume={isSavedResume}
+            savedResumeMeta={savedResumeMeta}
+            setError={setError}
+          />
+        </Reveal>
+      )}
 
       {tab === 'standard' && stdResult && (
         <Reveal className="mt-10">
