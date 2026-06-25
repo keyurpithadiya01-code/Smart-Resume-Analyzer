@@ -140,7 +140,7 @@ function AdminDashboardContent() {
   const healthRingOffset = 97.4 - (97.4 * (systemHealthPct / 100));
 
   return (
-    <div className="app scanly-admin-theme" style={{ display: 'block', padding: '24px' }}>
+    <div className="app scanly-admin-theme" style={{ display: 'block' }}>
       {/* MAIN */}
       <main className="main" style={{ margin: '0 auto', maxWidth: '1400px', width: '100%' }}>
         <div className="topbar">

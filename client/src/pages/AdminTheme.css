@@ -36,12 +36,11 @@
 
   *{ box-sizing: border-box; margin:0; padding:0; }
   html,body{ height:100%; }
-  body{
-    background: var(--ink);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-    overflow-x:hidden;
+  .app{
+    display:grid; 
+    grid-template-columns: 232px 1fr; 
+    min-height:100vh;
+    padding: 24px;
   }
 
   /* faint noise-overlay texture, reused across raised surfaces */
@@ -347,10 +346,40 @@
 
 @keyframes shimmerpulse{0%,100%{opacity:.55}50%{opacity:1}}
 
+.mobile-actions { display: none; position: relative; }
+.desktop-actions { display: flex; }
+
+.action-hub-btn {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+  padding: 8px 12px; color: var(--text-primary); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s;
+}
+.action-hub-btn:active { background: rgba(255, 255, 255, 0.08); }
+
+.action-dropdown-card {
+  position: absolute; right: 0; top: 100%; margin-top: 8px;
+  background: var(--ink-soft); border: 1px solid var(--ink-border-strong);
+  border-radius: 12px; padding: 6px; z-index: 10;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 200px;
+}
+.action-dropdown-card .mobile-logout-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px;
+  border-radius: 8px; border: none; background: transparent; color: var(--text-primary);
+  font-size: 13px; font-weight: 500; cursor: pointer; text-align: left;
+}
+.action-dropdown-card .mobile-logout-btn svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; opacity: 0.7; }
+.action-dropdown-card .mobile-logout-btn:active { background: rgba(255,255,255,0.05); }
+.action-dropdown-card .mobile-logout-btn.danger { color: #f0556b; }
+.action-dropdown-card .mobile-logout-btn.danger svg { stroke: #f0556b; opacity: 1; }
+
 @media (max-width: 768px) {
+  .app {
+    padding: 12px;
+  }
   .stats-row {
-    flex-direction: column !important;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
   .health-grid {
     grid-template-columns: 1fr;
@@ -373,4 +402,11 @@
   .reset-pwd-modal > div:last-child {
     display: none !important;
   }
+  .desktop-actions {
+    display: none !important;
+  }
+  .mobile-actions {
+    display: block;
+  }
 }
+
