@@ -3,6 +3,7 @@ import './AdminTheme.css'; // The extracted custom CSS
 import SystemHealthPanel from '../components/admin/SystemHealthPanel';
 import UserDirectoryTable from '../components/admin/UserDirectoryTable';
 import { ToastProvider, useToast } from '../components/admin/ToastProvider';
+import ResetPasswordModal from '../components/admin/ResetPasswordModal';
 import api from '../api/client';
 
 function AdminDashboardContent() {
@@ -20,6 +21,7 @@ function AdminDashboardContent() {
 
   // Modals state
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: null, user: null });
+  const [resetPwdModalOpen, setResetPwdModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const { addToast } = useToast();
@@ -99,18 +101,8 @@ function AdminDashboardContent() {
   };
 
   const handleResetPassword = async (user) => {
-    const newPassword = prompt(`Enter new password for ${user.email} (min 6 chars):`);
-    if (!newPassword) return;
-    if (newPassword.length < 6) {
-      addToast('Password must be at least 6 characters', 'error');
-      return;
-    }
-    try {
-      const res = await api.post(`/admin/users/${user._id}/reset-password`, { newPassword });
-      addToast(res.data.message || 'Password reset successfully');
-    } catch (err) {
-      addToast('Failed to reset password', 'error');
-    }
+    setSelectedUser(user);
+    setResetPwdModalOpen(true);
   };
 
   const openConfirmForceExpire = (user) => {
@@ -148,56 +140,9 @@ function AdminDashboardContent() {
   const healthRingOffset = 97.4 - (97.4 * (systemHealthPct / 100));
 
   return (
-    <div className="app scanly-admin-theme">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">
-            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round"><path d="M4 7V4h16v3M4 17v3h16v-3M2 12h20" stroke="currentColor"/></svg>
-          </div>
-          <div>
-            <div className="brand-name">Scanly</div>
-            <div className="brand-sub">Super Admin</div>
-          </div>
-        </div>
-
-        <div className="nav-section-label">Overview</div>
-        <div className="nav-item active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-          Dashboard
-        </div>
-        <div className="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          User Directory
-        </div>
-        <div className="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          System Health
-        </div>
-
-        <div className="nav-section-label">Manage</div>
-        <div className="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          Resume Audit Log
-        </div>
-        <div className="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Settings
-        </div>
-
-        <div className="sidebar-footer">
-          <div className="admin-chip">
-            <div className="admin-avatar">KP</div>
-            <div>
-              <div className="admin-name">Keyur P.</div>
-              <div className="admin-role">super_admin</div>
-            </div>
-          </div>
-        </div>
-      </aside>
-
+    <div className="app scanly-admin-theme" style={{ display: 'block', padding: '24px' }}>
       {/* MAIN */}
-      <main className="main">
+      <main className="main" style={{ margin: '0 auto', maxWidth: '1400px', width: '100%' }}>
         <div className="topbar">
           <div>
             <div className="page-title">Super Admin</div>
@@ -288,9 +233,7 @@ function AdminDashboardContent() {
           onForceExpire={openConfirmForceExpire}
           onBanUser={openConfirmBan}
         />
-      </main>
-
-      {/* CONFIRM MODAL */}
+      </main>      {/* CONFIRM MODAL */}
       <div className={`overlay ${confirmModal.isOpen ? 'show' : ''}`} onClick={(e) => { if(e.target.className.includes('overlay')) setConfirmModal({isOpen: false}) }}>
         <div className="modal">
           <div className={`modal-icon ${confirmModal.type === 'expire' ? 'warn' : ''}`}>
@@ -319,6 +262,12 @@ function AdminDashboardContent() {
         </div>
       </div>
 
+      <ResetPasswordModal 
+        isOpen={resetPwdModalOpen} 
+        user={selectedUser} 
+        onClose={() => setResetPwdModalOpen(false)} 
+        onToast={addToast} 
+      />
     </div>
   );
 }

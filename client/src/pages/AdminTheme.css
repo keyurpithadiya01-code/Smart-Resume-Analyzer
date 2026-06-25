@@ -344,3 +344,5 @@
     .stats-row{ grid-template-columns: repeat(2,1fr); }
     .health-grid{ grid-template-columns: 1fr; }
   }
+
+@keyframes shimmerpulse{0%,100%{opacity:.55}50%{opacity:1}}
