@@ -38,28 +38,22 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
 
   return (
     <div className="scanly-root">
-      <div className="result-section w-full">
-        <div className="result-header">
-          <div className="result-head-left flex flex-col sm:flex-row gap-4 sm:gap-12">
-            <div className="flex items-center gap-4">
-              <p className="result-title display">Optimized Resume</p>
-              <div className="result-badge">
-                <Icon name="check" /> ATS-ready
-              </div>
+      <div className="skill-card w-full mt-4">
+        <div className="skill-card-head">
+          <div>
+            <div className="skill-head-title">
+              <div className="skill-icon-badge" style={{ backgroundColor: 'var(--scan-green)', color: '#00100a' }}><Icon name="check" /></div>
+              <p className="skill-card-title display">Optimized Resume Ready</p>
             </div>
-          </div>
-
-          <div className="download-bar">
-            <button className="btn-download" onClick={handleDownload}>
-              <Icon name="download" />
-              Download ATS PDF
-            </button>
+            <p className="skill-card-sub">
+              Your resume has been successfully rewritten with ATS-friendly formatting and injected skills.
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-6 mt-6">
-          <div className="diff-card flex-1">
-            <p className="diff-label">ATS match score</p>
+        <div className="flex flex-col md:flex-row p-6 gap-8">
+          <div className="flex-1 md:border-r border-[#232b35] md:pr-8 flex flex-col justify-center">
+            <p className="diff-label text-center mb-6">ATS match score</p>
             <div className="score-row">
               <div className="score-block">
                 <div className="score-num before mono">{baseScore}</div>
@@ -74,23 +68,32 @@ export default function ResumeViewer({ originalText, optimizedJson, optimizedRes
             <div className="score-delta">+{projectedScore - baseScore} points from {selectedSkills.length} injected skills</div>
           </div>
 
-          <div className="diff-card flex-1">
-            <p className="diff-label">Skills injected ({selectedSkills.length})</p>
-            {selectedSkills.length === 0 ? (
-              <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", margin: 0 }}>No skills selected yet.</p>
-            ) : (
-              <div className="injected-list max-h-[140px] overflow-y-auto custom-scrollbar pr-2">
-                {selectedSkills.map((skill, i) => (
-                  <div className="injected-row" key={i}>
-                    <span className="injected-name">
-                      <Icon name="check" />
-                      {skill}
-                    </span>
-                    <span className="injected-where mono">Injected</span>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-full text-center mb-6">
+              <button className="btn-download mx-auto" onClick={handleDownload} disabled={downloading}>
+                <Icon name="download" />
+                {downloading ? 'Downloading...' : 'Download ATS PDF'}
+              </button>
+            </div>
+
+            <div className="w-full">
+              <p className="diff-label text-center mb-3">Skills injected ({selectedSkills.length})</p>
+              {selectedSkills.length === 0 ? (
+                <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", margin: 0, textAlign: 'center' }}>No skills selected.</p>
+              ) : (
+                <div className="injected-list max-h-[140px] overflow-y-auto custom-scrollbar pr-2">
+                  {selectedSkills.map((skill, i) => (
+                    <div className="injected-row" key={i}>
+                      <span className="injected-name">
+                        <Icon name="check" />
+                        {skill}
+                      </span>
+                      <span className="injected-where mono">Injected</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
