@@ -222,38 +222,27 @@ CRITICAL AI RULES:
 Selected Skills to incorporate seamlessly: ${selectedSkills.join(', ')}
 
 Extract and optimize the information into a strict JSON object. 
-Do NOT include any markdown formatting or code blocks (like \`\`\`json), just the raw JSON string.
-The JSON must EXACTLY match this structure:
+The JSON must EXACTLY match this flexible structure:
 {
   "personal_info": {
     "full_name": "", "email": "", "phone": "", "location": "", "linkedin": "", "portfolio": "", "title": ""
   },
-  "summary": "",
-  "experience": [
-    { "position": "", "company": "", "start_date": "", "end_date": "", "description": "" }
-  ],
-  "projects": [
-    { "name": "", "description": "" }
-  ],
-  "education": [
-    { "school": "", "degree": "", "field": "", "graduation_date": "", "gpa": "" }
-  ],
-  "skills": {
-    "technical": "",
-    "soft": "",
-    "tools": "",
-    "languages": ""
-  },
-  "certifications": [
-    { "name": "", "issuer": "", "date": "" }
-  ],
-  "achievements": [
-    ""
-  ],
-  "other_sections": [
-    { "section_name": "", "content": "" }
+  "sections": [
+    {
+      "heading": "String (e.g., SUMMARY, EXPERIENCE, PROJECTS, EDUCATION, CERTIFICATIONS, SKILLS, etc.)",
+      "items": [
+        {
+          "title": "String (e.g., Job Title, Degree, Project Name, Certification Name) - Leave empty if not applicable",
+          "subtitle": "String (e.g., Company, University, Issuer) - Leave empty if not applicable",
+          "date": "String - Leave empty if not applicable",
+          "description": "String (Detailed text or bullet points)"
+        }
+      ]
+    }
   ]
 }
+
+CRITICAL: You must iterate through EVERY SINGLE SECTION in the original text and map it into the "sections" array. Do not miss any custom sections the user has.
 
 Resume Text:
 ${resumeText}`;

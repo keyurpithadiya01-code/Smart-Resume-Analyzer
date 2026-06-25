@@ -6,7 +6,7 @@ export function generateOptimizedPdf(optimizedData, res) {
   // Pipe the PDF to the response
   doc.pipe(res);
 
-  const { personal_info, summary, experience, projects, education, skills, certifications, achievements, other_sections } = optimizedData;
+  const { personal_info, sections } = optimizedData;
 
   // --- Header (Personal Info) ---
   if (personal_info) {
@@ -39,104 +39,43 @@ export function generateOptimizedPdf(optimizedData, res) {
     doc.moveDown(0.5);
   };
 
-  // --- Summary ---
-  if (summary) {
-    drawSectionTitle('Professional Summary');
-    doc.font('Helvetica').fontSize(10).text(summary, { align: 'justify' });
-    doc.moveDown(1);
-  }
-
-  // --- Skills ---
-  if (skills && (skills.technical || skills.soft || skills.tools || skills.languages)) {
-    drawSectionTitle('Skills');
-    doc.font('Helvetica').fontSize(10);
-    if (skills.technical) doc.text(`Technical: ${skills.technical}`);
-    if (skills.soft) doc.text(`Soft Skills: ${skills.soft}`);
-    if (skills.tools) doc.text(`Tools: ${skills.tools}`);
-    if (skills.languages) doc.text(`Languages: ${skills.languages}`);
-    doc.moveDown(1);
-  }
-
-  // --- Experience ---
-  if (experience && experience.length > 0) {
-    drawSectionTitle('Experience');
-    experience.forEach((exp) => {
-      doc.font('Helvetica-Bold').fontSize(11).text(exp.position || '', { continued: true });
-      doc.font('Helvetica').text(` at ${exp.company || ''}`, { align: 'left', continued: true });
+  // --- Dynamic Sections ---
+  if (sections && Array.isArray(sections)) {
+    sections.forEach((sec) => {
+      if (!sec.heading) return;
       
-      const dates = [exp.start_date, exp.end_date].filter(Boolean).join(' - ');
-      doc.text(`  |  ${dates}`, { align: 'right' });
-      doc.moveDown(0.2);
-
-      if (exp.description) {
-        doc.font('Helvetica').fontSize(10).text(exp.description);
-      }
-      doc.moveDown(0.5);
-    });
-    doc.moveDown(0.5);
-  }
-
-  // --- Projects ---
-  if (projects && projects.length > 0) {
-    drawSectionTitle('Projects');
-    projects.forEach((proj) => {
-      doc.font('Helvetica-Bold').fontSize(11).text(proj.name || '');
-      if (proj.description) {
-        doc.font('Helvetica').fontSize(10).text(proj.description);
-      }
-      doc.moveDown(0.5);
-    });
-    doc.moveDown(0.5);
-  }
-
-  // --- Education ---
-  if (education && education.length > 0) {
-    drawSectionTitle('Education');
-    education.forEach((edu) => {
-      doc.font('Helvetica-Bold').fontSize(11).text(edu.school || '', { continued: true });
-      doc.font('Helvetica').text(edu.graduation_date ? `  |  ${edu.graduation_date}` : '', { align: 'right' });
-      doc.moveDown(0.2);
+      drawSectionTitle(sec.heading);
       
-      let degreeInfo = edu.degree || '';
-      if (edu.field) degreeInfo += ` in ${edu.field}`;
-      if (edu.gpa) degreeInfo += ` (GPA: ${edu.gpa})`;
-      
-      doc.font('Helvetica').fontSize(10).text(degreeInfo);
-      doc.moveDown(0.5);
-    });
-  }
+      if (sec.items && Array.isArray(sec.items)) {
+        sec.items.forEach((item) => {
+          // Title (e.g. Job Title, Degree)
+          if (item.title) {
+            doc.font('Helvetica-Bold').fontSize(11).text(item.title, { continued: !!item.subtitle || !!item.date });
+          }
+          
+          // Subtitle (e.g. Company, University)
+          if (item.subtitle) {
+            doc.font('Helvetica').text(item.title ? ` at ${item.subtitle}` : item.subtitle, { align: 'left', continued: !!item.date });
+          }
 
-  // --- Certifications ---
-  if (certifications && certifications.length > 0) {
-    drawSectionTitle('Certifications');
-    certifications.forEach((cert) => {
-      doc.font('Helvetica-Bold').fontSize(11).text(cert.name || '', { continued: true });
-      doc.font('Helvetica').text(cert.date ? `  |  ${cert.date}` : '', { align: 'right' });
-      doc.moveDown(0.2);
-      if (cert.issuer) {
-        doc.font('Helvetica').fontSize(10).text(cert.issuer);
-      }
-      doc.moveDown(0.5);
-    });
-  }
+          // Date
+          if (item.date) {
+            doc.text(item.title || item.subtitle ? `  |  ${item.date}` : item.date, { align: 'right' });
+          } else if (item.title || item.subtitle) {
+             // Terminate the continued line if there was no date but there was a title/subtitle
+             doc.text(' ');
+          }
 
-  // --- Achievements ---
-  if (achievements && achievements.length > 0) {
-    drawSectionTitle('Achievements');
-    achievements.forEach((ach) => {
-      doc.font('Helvetica').fontSize(10).text(`• ${ach}`);
-      doc.moveDown(0.2);
-    });
-    doc.moveDown(0.5);
-  }
+          if (item.title || item.subtitle || item.date) {
+            doc.moveDown(0.2);
+          }
 
-  // --- Other Sections ---
-  if (other_sections && other_sections.length > 0) {
-    other_sections.forEach((sec) => {
-      if (!sec.section_name) return;
-      drawSectionTitle(sec.section_name);
-      if (sec.content) {
-        doc.font('Helvetica').fontSize(10).text(sec.content);
+          // Description
+          if (item.description) {
+            doc.font('Helvetica').fontSize(10).text(item.description, { align: 'justify' });
+            doc.moveDown(0.4);
+          }
+        });
       }
       doc.moveDown(0.5);
     });

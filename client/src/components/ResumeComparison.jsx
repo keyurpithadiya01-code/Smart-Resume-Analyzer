@@ -1,7 +1,7 @@
 export default function ResumeComparison({ originalText, optimizedJson }) {
   if (!originalText || !optimizedJson) return null;
 
-  const { personal_info, summary, experience, projects, education, skills, certifications, achievements, other_sections } = optimizedJson;
+  const { personal_info, sections } = optimizedJson;
 
   return (
     <div className="mt-8 flex flex-col md:flex-row gap-6">
@@ -30,118 +30,37 @@ export default function ResumeComparison({ originalText, optimizedJson }) {
           </div>
         )}
 
-        {summary && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Professional Summary</h2>
-            <p className="text-sm text-gray-700 text-justify">{summary}</p>
-          </div>
-        )}
-
-        {skills && (skills.technical || skills.soft || skills.tools || skills.languages) && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Skills</h2>
-            <div className="text-sm text-gray-700 grid gap-1">
-              {skills.technical && <p><span className="font-semibold">Technical:</span> {skills.technical}</p>}
-              {skills.soft && <p><span className="font-semibold">Soft Skills:</span> {skills.soft}</p>}
-              {skills.tools && <p><span className="font-semibold">Tools:</span> {skills.tools}</p>}
-              {skills.languages && <p><span className="font-semibold">Languages:</span> {skills.languages}</p>}
-            </div>
-          </div>
-        )}
-
-        {experience && experience.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Experience</h2>
+        {sections && Array.isArray(sections) && sections.map((sec, idx) => (
+          <div key={idx} className="mb-4">
+            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">
+              {sec.heading}
+            </h2>
             <div className="space-y-4">
-              {experience.map((exp, i) => (
+              {sec.items && Array.isArray(sec.items) && sec.items.map((item, i) => (
                 <div key={i}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="text-md font-bold text-gray-900">{exp.position}</h3>
-                    <span className="text-sm text-gray-600 font-medium whitespace-nowrap ml-4">
-                      {[exp.start_date, exp.end_date].filter(Boolean).join(' - ')}
-                    </span>
-                  </div>
-                  <div className="text-sm font-semibold text-gray-700 italic mb-1">{exp.company}</div>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{exp.description}</p>
+                  {(item.title || item.subtitle || item.date) && (
+                    <div className="flex justify-between items-baseline mb-1">
+                      <div>
+                        {item.title && <span className="text-md font-bold text-gray-900">{item.title}</span>}
+                        {item.subtitle && <span className="text-sm font-semibold text-gray-700 italic ml-1">at {item.subtitle}</span>}
+                      </div>
+                      {item.date && (
+                        <span className="text-sm text-gray-600 font-medium whitespace-nowrap ml-4">
+                          {item.date}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {item.description && (
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap text-justify mt-1">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
           </div>
-        )}
-
-        {projects && projects.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Projects</h2>
-            <div className="space-y-3">
-              {projects.map((proj, i) => (
-                <div key={i}>
-                  <h3 className="text-md font-bold text-gray-900 mb-1">{proj.name}</h3>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{proj.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {education && education.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Education</h2>
-            <div className="space-y-3">
-              {education.map((edu, i) => (
-                <div key={i}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="text-md font-bold text-gray-900">{edu.school}</h3>
-                    <span className="text-sm text-gray-600 font-medium whitespace-nowrap ml-4">{edu.graduation_date}</span>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    <span className="font-semibold">{edu.degree}</span>
-                    {edu.field && <span> in {edu.field}</span>}
-                    {edu.gpa && <span> (GPA: {edu.gpa})</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {certifications && certifications.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Certifications</h2>
-            <div className="space-y-3">
-              {certifications.map((cert, i) => (
-                <div key={i}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="text-md font-bold text-gray-900">{cert.name}</h3>
-                    <span className="text-sm text-gray-600 font-medium whitespace-nowrap ml-4">{cert.date}</span>
-                  </div>
-                  {cert.issuer && <div className="text-sm text-gray-700">{cert.issuer}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {achievements && achievements.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">Achievements</h2>
-            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-              {achievements.map((ach, i) => (
-                <li key={i}>{ach}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {other_sections && other_sections.length > 0 && (
-          <div className="space-y-4 mb-4">
-            {other_sections.map((sec, i) => (
-              <div key={i}>
-                <h2 className="text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-2 uppercase tracking-wide">{sec.section_name}</h2>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{sec.content}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
