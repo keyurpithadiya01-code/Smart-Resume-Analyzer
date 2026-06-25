@@ -90,16 +90,19 @@ router.post('/users/:id/ban', async (req, res) => {
 
 router.post('/users/:id/reset-password', async (req, res) => {
   try {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // Generate a secure temporary password
-    const tempPassword = Math.random().toString(36).slice(-8) + 'Aa1!';
-    user.password = await bcrypt.hash(tempPassword, 10);
+    user.password = await bcrypt.hash(newPassword, 10);
     user.tokenVersion += 1; // Force expire current sessions so they have to login with new password
     await user.save();
 
-    res.json({ message: 'Password reset successful', tempPassword });
+    res.json({ message: 'Password reset successful' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -41,10 +41,19 @@ export default function AdminDashboard() {
   };
 
   const handleResetPassword = async (id) => {
-    if (!window.confirm("Are you sure you want to reset this user's password?")) return;
+    const newPassword = window.prompt("Enter the new password you want to set for this user:");
+    if (!newPassword) return; // user cancelled or entered empty string
+    
+    if (newPassword.length < 6) {
+      alert("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to reset the password to "${newPassword}"?`)) return;
+
     try {
-      const res = await api.post(`/admin/users/${id}/reset-password`);
-      alert(`Password reset successfully. New temporary password: ${res.data.tempPassword}\n\nPlease copy this and provide it to the user.`);
+      const res = await api.post(`/admin/users/${id}/reset-password`, { newPassword });
+      alert(res.data.message);
     } catch (err) {
       alert('Error: ' + (err.response?.data?.error || err.message));
     }
@@ -94,17 +103,20 @@ export default function AdminDashboard() {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-6 shadow-sm">
-          <h3 className="text-[#6b7785] text-sm uppercase tracking-wider mb-2">Total Users</h3>
-          <p className="text-3xl font-semibold text-[#00ffa3]">{metrics.totalUsers}</p>
+        <div className="relative overflow-hidden bg-gradient-to-b from-[#161d26] to-[#10161d] border border-[#232b35] hover:border-[#00ffa3]/30 rounded-2xl p-6 shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ffa3] opacity-[0.03] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <h3 className="text-[#6b7785] text-xs font-semibold uppercase tracking-widest mb-3">Total Users</h3>
+          <p className="text-4xl font-bold text-[#f0f0ec] tracking-tight">{metrics.totalUsers}</p>
         </div>
-        <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-6 shadow-sm">
-          <h3 className="text-[#6b7785] text-sm uppercase tracking-wider mb-2">Total Resumes Analyzed</h3>
-          <p className="text-3xl font-semibold text-[#00ffa3]">{metrics.totalResumesAnalyzed}</p>
+        <div className="relative overflow-hidden bg-gradient-to-b from-[#161d26] to-[#10161d] border border-[#232b35] hover:border-[#00ffa3]/30 rounded-2xl p-6 shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ffa3] opacity-[0.03] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <h3 className="text-[#6b7785] text-xs font-semibold uppercase tracking-widest mb-3">Total Resumes Analyzed</h3>
+          <p className="text-4xl font-bold text-[#f0f0ec] tracking-tight">{metrics.totalResumesAnalyzed}</p>
         </div>
-        <div className="bg-[#10161d] border border-[#232b35] rounded-xl p-6 shadow-sm">
-          <h3 className="text-[#6b7785] text-sm uppercase tracking-wider mb-2">Active Sessions</h3>
-          <p className="text-3xl font-semibold text-[#f0f0ec]">{metrics.activeSessions}</p>
+        <div className="relative overflow-hidden bg-gradient-to-b from-[#161d26] to-[#10161d] border border-[#232b35] hover:border-[#00ffa3]/30 rounded-2xl p-6 shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ffa3] opacity-[0.03] rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <h3 className="text-[#6b7785] text-xs font-semibold uppercase tracking-widest mb-3">Active Sessions</h3>
+          <p className="text-4xl font-bold text-[#f0f0ec] tracking-tight">{metrics.activeSessions}</p>
         </div>
       </div>
 
@@ -136,8 +148,8 @@ export default function AdminDashboard() {
         <div className="p-6 border-b border-[#232b35]">
           <h2 className="text-xl font-bold">User Directory</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto pb-4">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-[#0b0f14] border-b border-[#232b35]">
                 <th className="p-4 font-medium text-[#6b7785]">Email</th>
@@ -160,31 +172,37 @@ export default function AdminDashboard() {
                     )}
                   </td>
                   <td className="p-4 capitalize">{u.role}</td>
-                  <td className="p-4 flex gap-2 justify-end">
+                  <td className="p-4 flex gap-4 justify-end items-center">
                     <button
                       onClick={() => handleViewResume(u._id)}
-                      className="px-3 py-1.5 text-sm bg-[#1e2832] hover:bg-[#2a3642] border border-[#303e4d] rounded transition text-[#f0f0ec]"
+                      className="text-[#00ffa3] hover:underline text-sm font-medium transition-colors"
+                      title="View Resume"
                     >
-                      View Resume
+                      View
                     </button>
+                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
                       onClick={() => handleResetPassword(u._id)}
-                      className="px-3 py-1.5 text-sm bg-[#1e2832] hover:bg-[#2a3642] border border-[#303e4d] rounded transition text-[#f0f0ec]"
+                      className="text-[#f0f0ec] hover:text-[#00ffa3] text-sm transition-colors"
+                      title="Reset Password"
                     >
                       Reset Pass
                     </button>
+                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
                       onClick={() => handleForceExpire(u._id)}
-                      className="px-3 py-1.5 text-sm bg-[#1e2832] hover:bg-[#2a3642] border border-[#303e4d] rounded transition text-yellow-400"
+                      className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+                      title="Force Expire Sessions"
                     >
-                      Force Expire
+                      Expire
                     </button>
+                    <div className="w-[1px] h-4 bg-[#232b35]"></div>
                     <button
                       onClick={() => handleBan(u._id)}
-                      className={`px-3 py-1.5 text-sm border rounded transition ${
+                      className={`text-sm font-medium transition-colors ${
                         u.isBanned 
-                          ? 'bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-400' 
-                          : 'bg-red-500/10 hover:bg-red-500/20 border-red-500/30 text-red-400'
+                          ? 'text-green-400 hover:text-green-300' 
+                          : 'text-red-400 hover:text-red-300'
                       }`}
                     >
                       {u.isBanned ? 'Unban' : 'Ban'}
