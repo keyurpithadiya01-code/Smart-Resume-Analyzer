@@ -102,6 +102,7 @@ export default function AiResumeOptimizer({ file, isSavedResume, savedResumeMeta
           <ResumeComparison 
             originalText={analysisResult.resumeText} 
             optimizedJson={optimizedJson} 
+            optimizedId={optimizedResumeId}
           />
         </div>
       )}
