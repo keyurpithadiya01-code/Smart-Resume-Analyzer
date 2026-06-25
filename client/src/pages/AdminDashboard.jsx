@@ -19,7 +19,6 @@ function AdminDashboardContent() {
   const [time, setTime] = useState('--:--:--');
 
   // Modals state
-  const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: null, user: null });
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -79,9 +78,24 @@ function AdminDashboardContent() {
   }, [searchQuery, statusFilter, users]);
 
   const handleViewResume = async (user) => {
-    setSelectedUser(user);
-    setResumeModalOpen(true);
-    // Add real API logic here if desired to fetch details, but opening modal first.
+    try {
+      const res = await api.get(`/admin/users/${user._id}/resume`, { responseType: 'blob' });
+      const fileURL = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(
+          `<iframe width='100%' height='100%' style='border:none;margin:0;padding:0;' src='${fileURL}'></iframe>`
+        );
+      } else {
+        addToast('Please allow popups to view the resume', 'error');
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        addToast('No resume found for this user', 'error');
+      } else {
+        addToast('Error fetching resume', 'error');
+      }
+    }
   };
 
   const handleResetPassword = async (user) => {
@@ -305,35 +319,6 @@ function AdminDashboardContent() {
         </div>
       </div>
 
-      {/* RESUME PREVIEW MODAL */}
-      <div className={`overlay ${resumeModalOpen ? 'show' : ''}`} onClick={(e) => { if(e.target.className.includes('overlay')) setResumeModalOpen(false) }}>
-        <div className="modal wide">
-          <div className="resume-head">
-            <div className="resume-score-wrap">
-              <svg viewBox="0 0 36 36">
-                <circle className="score-ring-track" cx="18" cy="18" r="15.5"></circle>
-                <circle className="score-ring-fill" cx="18" cy="18" r="15.5" strokeDasharray="97.4" strokeDashoffset="20"></circle>
-              </svg>
-              <div className="resume-score-num">82</div>
-            </div>
-            <div>
-              <div className="resume-file-name">{selectedUser?.name || 'User'}_Resume.pdf</div>
-              <div className="resume-file-meta">Uploaded recently · ATS score</div>
-            </div>
-          </div>
-          <div className="resume-section-label">Flagged keywords matched</div>
-          <div className="resume-tags">
-            <span className="resume-tag">React</span><span className="resume-tag">Node.js</span><span className="resume-tag">SQL</span><span className="resume-tag">REST APIs</span>
-          </div>
-          <div className="resume-section-label">Suggested improvements</div>
-          <div className="modal-body" style={{ marginBottom: '18px' }}>
-            Missing a quantified impact statement in the experience section. Summary section reads as generic — recommend tailoring to the target job description.
-          </div>
-          <div className="modal-actions">
-            <button className="btn" onClick={() => setResumeModalOpen(false)}>Close</button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
