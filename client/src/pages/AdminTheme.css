@@ -380,7 +380,7 @@
     padding: 12px;
   }
   .stats-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
   .health-grid {
@@ -393,7 +393,12 @@
   }
   .directory-controls {
     width: 100%;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 12px;
+  }
+  .directory-controls > * {
+    flex: 1;
+    min-width: 0; /* allows flex items to shrink properly if needed */
   }
   .search-box {
     width: 100%;
