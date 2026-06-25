@@ -48,6 +48,7 @@ export default function UserDirectoryTable({
               placeholder="Search name or email…" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
             />
           </div>
         </div>

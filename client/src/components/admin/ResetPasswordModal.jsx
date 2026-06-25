@@ -47,6 +47,7 @@ export default function ResetPasswordModal({ isOpen, user, onClose, onToast }) {
   return (
     <div className={`overlay ${isOpen ? 'show' : ''}`} onClick={handleOverlayClick}>
       <div 
+        className="reset-pwd-modal"
         style={{
           background: 'var(--ink-soft)', 
           border: '1px solid var(--ink-border-strong)', 
@@ -89,6 +90,7 @@ export default function ResetPasswordModal({ isOpen, user, onClose, onToast }) {
               placeholder="Enter new password" 
               value={pwd1}
               onChange={e => setPwd1(e.target.value)}
+              autoComplete="new-password"
               style={{ width: '100%', background: '#141a24', border: '1px solid rgba(255,255,255,0.1)', outline: 'none', borderRadius: '10px', padding: '11px 40px 11px 14px', color: '#e9eef6', fontSize: '13.5px', fontFamily: 'inherit', boxSizing: 'border-box' }} 
               onFocus={(e) => e.target.style.borderColor = '#1af29b'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
@@ -109,6 +111,7 @@ export default function ResetPasswordModal({ isOpen, user, onClose, onToast }) {
               placeholder="Re-enter new password" 
               value={pwd2}
               onChange={e => setPwd2(e.target.value)}
+              autoComplete="new-password"
               style={{ width: '100%', background: '#141a24', border: '1px solid rgba(255,255,255,0.1)', outline: 'none', borderRadius: '10px', padding: '11px 40px 11px 14px', color: '#e9eef6', fontSize: '13.5px', fontFamily: 'inherit', boxSizing: 'border-box' }} 
               onFocus={(e) => e.target.style.borderColor = '#1af29b'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}

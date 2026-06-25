@@ -346,3 +346,31 @@
   }
 
 @keyframes shimmerpulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+@media (max-width: 768px) {
+  .stats-row {
+    flex-direction: column !important;
+    gap: 16px;
+  }
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+  .directory-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .directory-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+  .search-box {
+    width: 100%;
+  }
+  .reset-pwd-modal {
+    grid-template-columns: 1fr !important;
+  }
+  .reset-pwd-modal > div:last-child {
+    display: none !important;
+  }
+}
